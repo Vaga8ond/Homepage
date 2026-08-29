@@ -42,11 +42,31 @@ export class App {
   private timeouts: Record<string, ReturnType<typeof setTimeout>> = {};
 
   init() {
+    this.initIntersect();
     if (document.readyState === 'complete') ticker.nextTick(this.onLoaded, this);
     else addEventListener('load', this.onLoaded.bind(this), { once: true });
     addEventListener('resize', this.resizeThrottle.bind(this), { passive: true });
     addEventListener('scroll', this.onScroll.bind(this), { passive: true });
     this.onResize();
+  }
+
+  // source:4217 — data-intersect 观察：派发 intersect 事件 + is-in/out-of-view 类
+  private initIntersect() {
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        entry.target.dispatchEvent(new CustomEvent('intersect', { detail: { isIntersecting: entry.isIntersecting } }));
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in-view');
+          entry.target.classList.remove('is-out-of-view', 'is-out-of-view-top', 'is-out-of-view-bottom');
+        } else {
+          entry.target.classList.remove('is-in-view');
+          entry.target.classList.add('is-out-of-view');
+          entry.target.classList.toggle('is-out-of-view-top', entry.boundingClientRect.top < 0);
+          entry.target.classList.toggle('is-out-of-view-bottom', entry.boundingClientRect.top > 0);
+        }
+      }
+    }, { threshold: 0 });
+    document.querySelectorAll('[data-intersect]').forEach(el => observer.observe(el));
   }
 
   // source:4240 — 点亮 is-loaded，全站入场以此为号
