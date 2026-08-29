@@ -31,6 +31,7 @@
   --font-body: 'Instrument', serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-family-fraktion: var(--font-mono);
+  --font-family-bigger: var(--font-display);
   --font-family-editorial: var(--font-body);
 }
 

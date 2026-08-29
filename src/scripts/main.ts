@@ -1,6 +1,9 @@
 import { App, $ } from './core';
 import { Scrollbar } from './scrollbar';
 import { Head } from './head';
+import { Hero } from './hero';
+import './waves';
+import './separator';
 
 const boot = () => {
   (window as any).__bootErrors = [];
@@ -21,6 +24,7 @@ const boot = () => {
   safe('app', () => new App().init());
   safe('scrollbar', () => new Scrollbar());
   safe('head', () => new Head());
+  safe('hero', () => new Hero());
   // intro 契约桩：head/hero 等入场都挂 'intro' 事件；P7 preloader 建成后移除
   safe('intro-signal', () => $.once('siteLoaded', () => document.dispatchEvent(new CustomEvent('intro'))));
 };

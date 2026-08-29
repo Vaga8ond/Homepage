@@ -1,32 +1,35 @@
 // 事件总线 + rAF 心跳 + App — 对齐 source.js:4240-4290
 
 type Listener = (...args: any[]) => void;
-const listeners = new Map<string, Set<Listener>>();
+type Entry = { fn: Listener; ctx?: unknown };
+const listeners = new Map<string, Set<Entry>>();
 
 export const $ = {
-  on(event: string, fn: Listener) {
+  on(event: string, fn: Listener, ctx?: unknown) {
     if (!listeners.has(event)) listeners.set(event, new Set());
-    listeners.get(event)!.add(fn);
+    listeners.get(event)!.add({ fn, ctx });
   },
-  off(event: string, fn: Listener) {
-    listeners.get(event)?.delete(fn);
+  off(event: string, fn: Listener, ctx?: unknown) {
+    const list = listeners.get(event);
+    if (!list) return;
+    for (const e of list) if (e.fn === fn && (ctx === undefined || e.ctx === ctx)) list.delete(e);
   },
-  once(event: string, fn: Listener) {
-    const wrap: Listener = (...args) => { this.off(event, wrap); fn(...args); };
+  once(event: string, fn: Listener, ctx?: unknown) {
+    const wrap: Listener = (...args) => { this.off(event, wrap); fn.apply(ctx ?? null, args); };
     this.on(event, wrap);
   },
   emit(event: string, ...args: any[]) {
-    listeners.get(event)?.forEach(fn => fn(...args));
+    listeners.get(event)?.forEach(e => e.fn.apply(e.ctx ?? null, args));
   },
 };
 
 // rAF 心跳：常驻动画（waves 等）订阅用；空闲时自停
-const subs = new Set<() => void>();
+const subs = new Set<(t: number) => void>();
 let rafId = 0;
-const loop = () => { subs.forEach(fn => fn()); rafId = subs.size ? requestAnimationFrame(loop) : 0; };
+const loop = () => { const t = performance.now(); subs.forEach(fn => fn(t)); rafId = subs.size ? requestAnimationFrame(loop) : 0; };
 
 export const ticker = {
-  add(fn: () => void) {
+  add(fn: (t: number) => void) {
     subs.add(fn);
     if (!rafId) rafId = requestAnimationFrame(loop);
     return () => { subs.delete(fn); if (!subs.size && rafId) { cancelAnimationFrame(rafId); rafId = 0; } };
@@ -46,6 +49,8 @@ export class App {
     if (document.readyState === 'complete') ticker.nextTick(this.onLoaded, this);
     else addEventListener('load', this.onLoaded.bind(this), { once: true });
     addEventListener('resize', this.resizeThrottle.bind(this), { passive: true });
+    addEventListener('mousemove', (e: MouseEvent) => $.emit('mousemove', e.clientX, e.clientY), { passive: true });
+    ticker.add((t: number) => $.emit('tick', t));
     addEventListener('scroll', this.onScroll.bind(this), { passive: true });
     this.onResize();
   }

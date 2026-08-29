@@ -1,5 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// a-separator 二进制段（源站 01-hero.html 结构：码组+条纹，blank 恒在第 8 位；SSR 静态生成）
+const sep = (groups: number) => `<span class="a__triangle"></span><span class="a__binaries">${
+  Array.from({ length: groups }, () => {
+    const bits = [...Array.from({ length: 7 }, () => Math.round(Math.random())), ' '];
+    return `<span class="a__code js-code">${bits.map((b) => b === ' '
+      ? '<span class="a__char a__char--blank js-char"> </span>'
+      : `<span class="a__char a__char--${b} js-char">${b}</span>`).join('')}</span><span class="a__stripes"></span>`;
+  }).join('')}</span><span class="a__triangle"></span>`;
 ---
 
 <Layout title="SPIKE — Creative Developer" description="Creative developer portfolio: animation-driven, high-impact websites. GSAP · WebGL · Motion.">
@@ -53,6 +62,24 @@ import Layout from '../layouts/Layout.astro';
         </aside><!-- .sb-availability -->
       </div><!-- .site-head__container -->
     </header>
+
+    <section class="s-hero" data-intersect id="top">
+      <a-waves class="s__waves" data-intersect>
+        <svg class="js-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+      </a-waves>
+      <div class="s__content js-content">
+        <a-separator class="s__separator style--primary js-separator" data-intersect set:html={sep(8)}></a-separator>
+        <h1 class="s__title">
+          <span class="s__title__word js-word">Creative</span>
+          <img class="s__title__asset js-star" src="/images/asset-star.svg" alt="" width="48" height="48">
+          <span class="s__title__word js-word">Developer</span>
+        </h1>
+        <a-separator class="s__separator style--primary js-separator" data-intersect set:html={sep(5)}></a-separator>
+      </div>
+      <div class="s__border js-border"></div>
+    </section>
+
+    <a-separator class="style--secondary s__separator" data-intersect set:html={sep(5)}></a-separator>
   </div>
 
   <div class="site-mount js-mount" aria-hidden="true"></div>
