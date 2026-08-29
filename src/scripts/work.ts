@@ -308,7 +308,8 @@ export class Work {
     // 遮罩视差进度（css var；源站式：顶入为负分量+底出为正分量，pin 中段 ≈ -1）
     const r = this.el.getBoundingClientRect();
     const vh = window.safeHeight;
-    this.scrollProgress = -clamp01((vh - r.top) / vh) + (1 - clamp01(r.bottom / vh));
+    // 源站 positionInViewport 语义：'top'=rect.top/vh、'bottom'=rect.bottom/vh → 全盖段恒 0（画板不动），进/出场 ±1（滑入滑出）
+    this.scrollProgress = -clamp01(r.top / vh) + (1 - clamp01(r.bottom / vh));
     this.smoothScrollProgress += (this.scrollProgress - this.smoothScrollProgress) * .1;
     this.el.style.setProperty('--scroll-progress', String(this.smoothScrollProgress));
     // 时间轴进度：top 过视口 75% 线 → bottom 过 25% 线（=老 ScrollTrigger start "top 25%" end "bottom 75%"），scrub 平滑
