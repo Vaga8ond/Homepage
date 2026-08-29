@@ -1,57 +1,63 @@
-import { $, ticker } from './core';
+import { $ } from './core';
 
+// 自绘滚动条 — 结构/交互对齐 source.css:518-590 + source.js setScrollbar/拖拽
 export class Scrollbar {
-  private el: HTMLElement;
-  private thumb: HTMLElement;
-  private drag = { startY: 0, startScroll: 0 };
-  private isDragging = false;
+  private el = document.querySelector('.js-scrollbar') as HTMLElement;
+  private thumb = document.querySelector('.js-scrollbar-thumb') as HTMLElement;
+  private dragging = false;
+  private pointerId = -1;
 
   constructor() {
-    this.el = document.querySelector('.site-scrollbar') as HTMLElement;
-    this.thumb = this.el.querySelector('.js-thumb') as HTMLElement;
-    document.documentElement.classList.add('has-scrollbar');
-    this.setScrollbar();
-    this.bindEvents();
+    $.on('scroll', () => this.update());
+    $.on('resize', () => this.update());
+    $.once('siteLoaded', () => this.update());
+
+    this.thumb.addEventListener('pointerdown', this.onDown.bind(this));
+    addEventListener('pointermove', this.onMove.bind(this));
+    addEventListener('pointerup', this.onUp.bind(this));
+    this.update();
   }
 
-  private bindEvents() {
-    $.on('resize', () => this.setScrollbar(), this, true);
-    $.on('scroll', () => this.setScrollbar(), this, true);
-    $.on('siteLoaded', () => this.setScrollbar(), this, true);
-    $.on('updateViewport', () => this.setScrollbar(), this, true);
-    const start = (e: Event) => {
-      this.isDragging = true;
-      this.drag.startY = e instanceof MouseEvent ? e.clientY : (e as TouchEvent).touches[0].clientY;
-      this.drag.startScroll = window.scrollProgress;
-      this.el.classList.add('is-dragging');
-      e.preventDefault();
-    };
-    this.thumb.addEventListener('mousedown', start);
-    this.thumb.addEventListener('touchstart', start, { passive: false });
-    document.addEventListener('mousemove', (e) => this.move(e), { passive: false });
-    document.addEventListener('touchmove', (e) => this.move(e), { passive: false });
-    document.addEventListener('mouseup', () => this.end());
-    document.addEventListener('touchend', () => this.end());
+  // thumb 高度 = 视口占文档比例；top = 滚动比例（走 CSS 变量，样式在 global.css）
+  private update() {
+    const doc = document.documentElement;
+    const overflow = doc.scrollHeight - window.innerHeight;
+    if (overflow <= 0) { this.thumb.style.opacity = '0'; return; }
+    this.thumb.style.opacity = '';
+    const barHeight = Math.max(24, (window.innerHeight / doc.scrollHeight) * window.innerHeight);
+    const maxBar = window.innerHeight - barHeight;
+    const top = (window.scrollY / overflow) * maxBar;
+    this.thumb.style.setProperty('--scrollbar-height', `${barHeight}px`);
+    this.thumb.style.setProperty('--scrollbar-top', `${top}px`);
   }
 
-  private move(e: Event) {
-    if (!this.isDragging) return;
-    const y = e instanceof MouseEvent ? e.clientY : (e as TouchEvent).touches[0].clientY;
-    const delta = (y - this.drag.startY) / window.safeHeight;
-    window.scrollTo(0, (this.drag.startScroll + delta) * window.maxScrollTop);
-    e.preventDefault();
+  private onDown(e: PointerEvent) {
+    this.dragging = true;
+    this.pointerId = e.pointerId;
+    this.el.classList.add('is-dragging');
+    this.seek(e.clientY);
   }
 
-  private end() {
-    if (!this.isDragging) return;
-    this.isDragging = false;
+  private onMove(e: PointerEvent) {
+    if (!this.dragging || e.pointerId !== this.pointerId) return;
+    this.seek(e.clientY);
+  }
+
+  private onUp(e: PointerEvent) {
+    if (!this.dragging || e.pointerId !== this.pointerId) return;
+    this.dragging = false;
     this.el.classList.remove('is-dragging');
   }
 
-  private setScrollbar() {
-    const h = (window.safeHeight / document.body.scrollHeight) * window.safeHeight;
-    const top = window.scrollProgress * (window.safeHeight - h);
-    this.el.style.setProperty('--scrollbar-height', `${h}px`);
-    this.el.style.setProperty('--scrollbar-top', `${top}px`);
+  // 拖拽点映射回文档滚动位（抓中点不跳变：以 thumb 当前中心为锚）
+  private seek(clientY: number) {
+    const rect = this.el.getBoundingClientRect();
+    const doc = document.documentElement;
+    const overflow = doc.scrollHeight - window.innerHeight;
+    const barHeight = this.thumb.getBoundingClientRect().height;
+    const maxBar = window.innerHeight - barHeight;
+    if (maxBar <= 0 || overflow <= 0) return;
+    const ratio = Math.min(1, Math.max(0, (clientY - rect.top - barHeight / 2) / maxBar));
+    window.scrollTo(0, ratio * overflow);
   }
 }

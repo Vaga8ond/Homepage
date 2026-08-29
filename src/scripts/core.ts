@@ -1,148 +1,86 @@
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
+// 事件总线 + rAF 心跳 + App — 对齐 source.js:4240-4290
 
-gsap.registerPlugin(ScrollTrigger);
+type Listener = (...args: any[]) => void;
+const listeners = new Map<string, Set<Listener>>();
 
-export const REDUCED = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const $ = {
+  on(event: string, fn: Listener) {
+    if (!listeners.has(event)) listeners.set(event, new Set());
+    listeners.get(event)!.add(fn);
+  },
+  off(event: string, fn: Listener) {
+    listeners.get(event)?.delete(fn);
+  },
+  once(event: string, fn: Listener) {
+    const wrap: Listener = (...args) => { this.off(event, wrap); fn(...args); };
+    this.on(event, wrap);
+  },
+  emit(event: string, ...args: any[]) {
+    listeners.get(event)?.forEach(fn => fn(...args));
+  },
+};
 
-/* ---------- Event bus ---------- */
-type Ctx = object | undefined;
-export class Bus {
-  private events: Record<string, Array<{ cb: Function; context?: Ctx; once?: boolean }>> = {};
-  on(name: string, cb: Function, context?: Ctx, once = false) {
-    (this.events[name] || (this.events[name] = []));
-    const list = this.events[name];
-    if (!list.some((e) => e.cb === cb && e.context === context)) list.push({ cb, context, once });
-  }
-  once(name: string, cb: Function, context?: Ctx) { this.on(name, cb, context, true); }
-  off(name: string, cb: Function, context?: Ctx) {
-    const list = this.events[name];
-    if (list) this.events[name] = list.filter((e) => !(e.cb === cb && e.context === context));
-  }
-  emit(name: string, ...args: any[]) {
-    const list = this.events[name];
-    if (!list) return;
-    list.forEach((e, i) => {
-      e.cb.apply(e.context, args);
-      if (e.once) delete list[i];
-    });
-  }
-}
-export const $ = new Bus();
+// rAF 心跳：常驻动画（waves 等）订阅用；空闲时自停
+const subs = new Set<() => void>();
+let rafId = 0;
+const loop = () => { subs.forEach(fn => fn()); rafId = subs.size ? requestAnimationFrame(loop) : 0; };
 
-/* ---------- Ticker (single rAF source for the whole site) ---------- */
-class Ticker {
-  private callbacks: Array<{ cb: Function; context?: Ctx }> = [];
-  delta = 0;
-  init() {
-    gsap.ticker.add((time, deltaTime) => {
-      this.delta = deltaTime;
-      const cbs = this.callbacks;
-      this.callbacks = [];
-      cbs.forEach((c) => c.cb.apply(c.context));
-      $.emit('tick', time * 1000);
-    });
-  }
-  nextTick(cb: Function, context?: Ctx) { this.callbacks.push({ cb, context }); }
-}
-export const ticker = new Ticker();
+export const ticker = {
+  add(fn: () => void) {
+    subs.add(fn);
+    if (!rafId) rafId = requestAnimationFrame(loop);
+    return () => { subs.delete(fn); if (!subs.size && rafId) { cancelAnimationFrame(rafId); rafId = 0; } };
+  },
+  nextTick(fn: () => void, ctx?: object) { requestAnimationFrame(() => fn.call(ctx ?? null)); },
+};
 
-/* ---------- App: globals, viewport, intersect dispatcher ---------- */
-declare global {
-  interface Window {
-    safeWidth: number; safeHeight: number; maxScrollTop: number; scrollProgress: number;
-    lenis?: Lenis;
-  }
-}
+export const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export class App {
-  private lenis!: Lenis;
-  private resizeTimeout: ReturnType<typeof setTimeout> | null = null;
-  private windowWidth?: number;
-  private windowHeight?: number;
-  private io: IntersectionObserver | null = null;
-
-  constructor() {
-    const ua = navigator.userAgent;
-    const os = ua.includes('Win') ? 'windows' : ua.includes('Android') ? 'android' : ua.includes('Mac') ? 'mac' : ua.includes('Linux') ? 'linux' : 'unknown';
-    const br = ua.includes('Firefox') ? 'firefox' : ua.includes('Chrome') ? 'chrome' : ua.includes('Safari') ? 'safari' : 'unknown';
-    document.documentElement.classList.add(`is-${os}`, `is-${br}`, 'has-cursor');
-    this.bindEvents();
-  }
+  windowWidth?: number;
+  windowHeight?: number;
+  private timeouts: Record<string, ReturnType<typeof setTimeout>> = {};
 
   init() {
-    this.initLenis();
-    ticker.init();
-    this.onResize();
-    ticker.nextTick(this.intro, this);
-  }
-
-  private initLenis() {
-    this.lenis = new Lenis({ autoRaf: false });
-    this.lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((t) => this.lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
-    window.lenis = this.lenis;
-    REDUCED && this.lenis.start();
-    if (!REDUCED) this.lenis.stop();
-  }
-
-  unlockScroll() { this.lenis?.start(); }
-
-  private bindEvents() {
-    window.addEventListener('resize', () => {
-      if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
-      this.resizeTimeout = setTimeout(() => ticker.nextTick(this.onResize, this), 200);
-    }, { passive: true });
-    window.addEventListener('scroll', () => {
-      this.setScrollProgress();
-      ticker.nextTick(() => $.emit('scroll', window.scrollY));
-    }, { passive: true });
-    window.addEventListener('mousemove', (e) => $.emit('mousemove', e.clientX, e.clientY), { passive: true });
-
-    this.io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        entry.target.dispatchEvent(new CustomEvent('intersect', { detail: { isIntersecting: entry.isIntersecting } }));
-        entry.target.classList.toggle('is-in-view', entry.isIntersecting);
-        if (entry.isIntersecting) entry.target.classList.remove('is-out-of-view', 'is-out-of-view-top', 'is-out-of-view-bottom');
-        else {
-          entry.target.classList.add('is-out-of-view');
-          entry.target.classList.toggle('is-out-of-view-top', entry.boundingClientRect.top < 0);
-          entry.target.classList.toggle('is-out-of-view-bottom', entry.boundingClientRect.top > 0);
-        }
-      });
-    }, { threshold: 0 });
-    document.querySelectorAll('[data-intersect]').forEach((el) => this.io!.observe(el));
-
-    if (document.readyState === 'complete') this.siteLoaded();
-    else window.addEventListener('load', () => this.siteLoaded(), { once: true });
+    if (document.readyState === 'complete') ticker.nextTick(this.onLoaded, this);
+    else addEventListener('load', this.onLoaded.bind(this), { once: true });
+    addEventListener('resize', this.resizeThrottle.bind(this), { passive: true });
+    addEventListener('scroll', this.onScroll.bind(this), { passive: true });
     this.onResize();
   }
 
-  private siteLoaded() {
+  // source:4240 — 点亮 is-loaded，全站入场以此为号
+  private onLoaded() {
     document.documentElement.classList.add('is-loaded');
     $.emit('siteLoaded');
   }
 
-  onResize() {
+  private resizeThrottle() {
+    clearTimeout(this.timeouts.resize);
+    this.timeouts.resize = setTimeout(this.onResize.bind(this), 200);
+  }
+
+  // source:4255 — 宽/高变化标志位随事件抛出
+  private onResize() {
     const w = window.innerWidth;
-    const h = window.innerHeight;
     const wChanged = this.windowWidth !== undefined && this.windowWidth !== w;
+    this.windowWidth = w;
+    const h = window.innerHeight;
     const hChanged = this.windowHeight !== undefined && this.windowHeight !== h;
-    this.windowWidth = w; this.windowHeight = h;
-    window.safeWidth = w; window.safeHeight = h;
-    window.maxScrollTop = Math.max(0, document.body.scrollHeight - h);
+    this.windowHeight = h;
     this.setScrollProgress();
     $.emit('resize', wChanged, hChanged);
-    $.emit('updateViewport');
+  }
+
+  private onScroll() {
+    this.setScrollProgress();
+    ticker.nextTick(() => $.emit('scroll', window.scrollY));
   }
 
   private setScrollProgress() {
-    window.scrollProgress = window.maxScrollTop > 0 ? window.scrollY / window.maxScrollTop : 0;
-  }
-
-  private intro() {
-    $.emit('appIntro');
+    (window as any).scrollProgress = window.maxScrollTop
+      ? window.scrollY / (window as any).maxScrollTop
+      : 0;
+    (window as any).maxScrollTop = Math.max(0, document.body.scrollHeight - window.innerHeight);
   }
 }
