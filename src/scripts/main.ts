@@ -6,6 +6,7 @@ import { About } from './about';
 import { Work } from './work';
 import { MyWay } from './my-way';
 import { Cta } from './cta';
+import { Intro } from './intro';
 import './waves';
 import './separator';
 
@@ -17,11 +18,10 @@ const boot = () => {
 
   history.scrollRestoration = 'manual'; // source:2831
   // html SSR 带 is-scroll-blocked（100lvh）→ 浏览器恢复钳到 0，首帧即顶部无闪烁。
-  // load+2帧解锁；P7 preloader 建成后此解锁时机归它接管。
+  // 解锁时机归 intro 时间轴 t5（source.js:4310）。
   addEventListener('load', () => {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       scrollTo(0, 0);
-      document.documentElement.classList.remove('is-scroll-blocked');
     }));
   });
 
@@ -39,8 +39,7 @@ const boot = () => {
     const el = document.querySelector('.s-cta');
     if (el) new Cta(el as HTMLElement).init();
   });
-  // intro 契约桩：head/hero 等入场都挂 'intro' 事件；P7 preloader 建成后移除
-  safe('intro-signal', () => $.once('siteLoaded', () => document.dispatchEvent(new CustomEvent('intro'))));
+  safe('intro', () => new Intro());
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
