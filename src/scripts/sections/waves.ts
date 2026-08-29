@@ -12,6 +12,7 @@ export class Waves extends HTMLElement {
   private mouse = { x: -10, y: 0, lx: 0, ly: 0, sx: 0, sy: 0, v: 0, vs: 0, a: 0, set: false };
   private isInteractive = false;
   private isPaused = true;
+  private revealed = false;
 
   constructor() { super(); }
 
@@ -22,8 +23,8 @@ export class Waves extends HTMLElement {
     $.on('mousemove', this.onMouseMove, this);
     $.on('resize', this.onResize, this);
     this.addEventListener('intersect', (e: Event) => this.onIntersect(e), { passive: true });
-    this.addEventListener('introend', () => { this.isInteractive = true; });
-    if (REDUCED) this.drawLines();
+    this.addEventListener('introend', () => { this.isInteractive = true; this.revealed = true; this.paths.forEach((p) => { p.style.strokeDashoffset = '0'; }); });
+    if (REDUCED) { this.revealed = true; this.drawLines(); }
   }
 
   private onMouseMove(x: number, y: number) { this.updateMousePosition(x, y); }
@@ -65,6 +66,8 @@ export class Waves extends HTMLElement {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.classList.add('a__line', 'js-line');
       path.setAttribute('pathLength', '1');
+      path.style.strokeDasharray = '1';
+      path.style.strokeDashoffset = this.revealed ? '0' : '1';
       this.svg.appendChild(path);
       this.paths.push(path);
       this.lines.push(points);

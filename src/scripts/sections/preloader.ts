@@ -22,11 +22,12 @@ export class Preloader {
     const borderLeft = this.el.querySelector('.preloader__border--left');
     const borderRight = this.el.querySelector('.preloader__border--right');
     const tl = gsap.timeline();
+    tl.set(this.el, { background: 'transparent' }, 0);
     tl.fromTo(vLines, { scaleY: 0 }, { scaleY: 1, duration: 1, ease: 'power4.inOut', stagger: .15 }, 0);
     tl.fromTo(hLines, { scaleX: 0 }, { scaleX: 1, duration: .4, ease: 'power4.inOut', stagger: 0 }, 1);
     tl.set(vLines, { transformOrigin: '50% 0' });
     tl.fromTo(vLines, { scaleY: 1 }, { scaleY: 0, duration: 1, ease: 'power4.in', immediateRender: false, stagger: .1 }, 2);
-    tl.fromTo(hLines, { scaleX: 1 }, { scaleX: 0, duration: .5, ease: 'power4.in', immediateRender: false, stagger: .1 }, 2.1);
+    tl.fromTo(hLines, { scaleY: 1 }, { scaleY: 0, duration: .5, ease: 'power4.in', immediateRender: false, stagger: .1 }, 2.1);
     tl.from(borderTop, { scaleY: 0, duration: 3, ease: 'power3.inOut' }, 1);
     tl.from([borderLeft, borderRight], { scaleX: 0, duration: 3, ease: 'power3.inOut' }, 1);
     tl.call(() => document.dispatchEvent(new CustomEvent('intro')), null, '-=1.85');
@@ -34,7 +35,6 @@ export class Preloader {
   }
 
   private finish() {
-    document.querySelector('.js-mount')?.setAttribute('style', 'opacity:1');
     this.el.remove();
     document.documentElement.classList.remove('is-scroll-blocked');
     $.emit('unlockScroll');

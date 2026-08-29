@@ -23,6 +23,13 @@ export class Hero {
       return;
     }
     document.addEventListener('intro', () => this.intro(), { once: true });
+    $.once('siteLoaded', () => {
+      if (REDUCED) return;
+      const waves = this.el.querySelector('x-waves');
+      const lines = this.el.querySelectorAll('.js-line');
+      gsap.fromTo(lines, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 3, ease: 'expo.out', stagger: { amount: .5, from: 'edges', ease: 'power3.inOut' }, delay: .5 });
+      gsap.delayedCall(2.5, () => waves?.dispatchEvent(new CustomEvent('introend')));
+    });
     this.el.addEventListener('intersect', (e: Event) => {
       const paused = !(e as CustomEvent).detail.isIntersecting;
       if (paused) $.off('tick', this.tick, this);
@@ -37,15 +44,11 @@ export class Hero {
   }
 
   private intro() {
-    const waves = this.el.querySelector('x-waves');
-    const lines = this.el.querySelectorAll('.js-line');
     const content = this.el.querySelector('.js-content') as HTMLElement;
     const seps = this.el.querySelectorAll('.js-sep-item');
     const star = this.el.querySelector('.js-star');
     const inners = content.querySelectorAll('.char__inner');
     const tl = gsap.timeline();
-    tl.fromTo(lines, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 3, ease: 'expo.out', stagger: { amount: .5, from: 'edges', ease: 'power3.inOut' } }, .5);
-    tl.call(() => waves?.dispatchEvent(new CustomEvent('introend')), null, '-=1');
     tl.fromTo(content, { clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)' }, { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', duration: 1, ease: 'expo.inOut' }, 1);
     tl.fromTo(inners, { y: '-100%' }, { y: '0%', duration: 2, ease: 'expo.inOut', stagger: .02 }, .45);
     tl.from(seps, { y: (i: number) => (i % 2 === 0 ? '-100%' : '100%'), duration: 1.5, ease: 'expo.inOut' }, .75);
