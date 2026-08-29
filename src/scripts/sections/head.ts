@@ -68,11 +68,9 @@ export class Head {
   private intro() {
     const logo = this.el.querySelector('.js-logo');
     const items = this.el.querySelectorAll('.js-menu-item');
-    const qr = this.el.querySelector('.js-qr-code');
     const tl = gsap.timeline();
     tl.from(this.el, { y: '-100%', duration: 1.5, ease: 'expo.inOut' }, 1);
     tl.from([logo, ...Array.from(items)], { y: '-110%', duration: 1.5, ease: 'expo.out', stagger: .1 }, 1.5);
-    if (qr) tl.fromTo(qr, { '--bg-p': '0%' }, { '--bg-p': '100%', duration: 1.5, ease: 'expo.out' }, 1.75);
     tl.call(() => { this.canWrite = true; }, null, 1.6);
   }
 
