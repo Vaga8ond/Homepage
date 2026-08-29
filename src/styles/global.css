@@ -37,18 +37,24 @@ html.is-loaded .site-wrapper { opacity: 1; }
 /* ============ Preloader ============ */
 .preloader { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: var(--color-primary); }
 .preloader__border { position: absolute; background: var(--color-secondary); }
-.preloader__border--top { top: 0; left: 0; right: 0; height: 1px; transform-origin: 50% 0; }
-.preloader__border--left { top: 0; bottom: 0; left: 0; width: 1px; transform-origin: 0 50%; }
-.preloader__border--right { top: 0; bottom: 0; right: 0; width: 1px; transform-origin: 100% 50%; }
-.preloader__logo { position: relative; width: 90px; height: 120px; }
+.preloader { --border-w: 1rem; position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: var(--color-primary); }
+.preloader__border { position: absolute; background: var(--color-secondary); }
+.preloader__border--top { top: 0; left: 0; width: 100%; height: var(--border-w); transform-origin: 50% 0; }
+.preloader__border--left { top: 0; bottom: 0; left: 0; width: var(--border-w); transform-origin: 0 50%; }
+.preloader__border--right { top: 0; bottom: 0; right: 0; width: var(--border-w); transform-origin: 100% 50%; }
+/* 48px barcode glyph, exact geometry from source (.sb-logo/.sb__path--v/h) */
+.preloader__logo { position: relative; width: 3rem; height: 3rem; }
 .preloader__logo .line { position: absolute; background: var(--color-secondary); }
-.preloader__logo .line--v { width: 3px; transform: scaleY(0); }
-.preloader__logo .line--v:nth-child(1) { left: 34px; top: 0; bottom: 22px; }
-.preloader__logo .line--v:nth-child(2) { left: 44px; top: 16px; bottom: 0; }
-.preloader__logo .line--v:nth-child(3) { left: 54px; top: 30px; bottom: 12px; }
-.preloader__logo .line--h { left: 30px; right: 30px; height: 2px; transform: scaleX(0); }
-.preloader__logo .line--h:nth-child(4) { top: 34px; }
-.preloader__logo .line--h:nth-child(5) { bottom: 34px; }
+.preloader__logo .line--v { top: 0; width: 14.2857%; height: 100%; transform-origin: 50% 100%; transform: scaleY(0); }
+.preloader__logo .line--v-1 { left: 0; }
+.preloader__logo .line--v-2 { left: 21.3214%; }
+.preloader__logo .line--v-3 { left: 43.2143%; }
+.preloader__logo .line--v-4 { left: 64.7857%; }
+.preloader__logo .line--v-5 { right: 0; }
+.preloader__logo .line--h { width: 7.5%; height: 6%; transform: scaleX(0); }
+.preloader__logo .line--h-1 { top: 0; left: 14.2857%; transform-origin: 100% 0; }
+.preloader__logo .line--h-2 { left: 57.5%; bottom: 0; transform-origin: 0 0; }
+.preloader__logo .line--h-3 { right: 14.2857%; bottom: 0; transform-origin: 0 0; }
 
 /* ============ Head ============ */
 .u-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -233,6 +239,8 @@ x-work .x-work__caption-key { opacity: .55; flex: none; }
   .site-wrapper { clip-path: inset(0 -.5rem); }
   .site-mount { border-width: .5rem; }
   .site-scrollbar { width: .5rem; }
+  .preloader { --border-w: .5rem; }
+  .preloader__logo { width: 1.875rem; height: 1.875rem; }
   .site-head__container { height: 4rem; }
   .sb-logo { order: 1; padding: 1rem; width: 4rem; height: 4rem; }
   .sb-logo svg { width: 1.875rem; height: 1.875rem; }
