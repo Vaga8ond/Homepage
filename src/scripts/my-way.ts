@@ -32,11 +32,6 @@ class Line {
   get d() { return `M ${this.x1} ${this.y1} L ${this.x2} ${this.y2}`; }
 }
 
-class Point {
-  constructor(public x: number, public y: number) {}
-  get d() { return `M ${this.x - 1} ${this.y} L ${this.x + 1} ${this.y}`; }
-}
-
 type ObjState = {
   el: HTMLElement;
   s: number; x: number; y: number; z: number; rx: number; ry: number; rz: number;
@@ -50,7 +45,6 @@ const rnd = (max: number) => Math.random() * max;
 export class MyWay {
   private el: HTMLElement;
   private objectsEl: HTMLElement;
-  private catcherEl: HTMLElement;
   private smileyEl: HTMLElement;
   private svg: SVGSVGElement;
   private path: SVGPathElement;
@@ -71,17 +65,17 @@ export class MyWay {
   constructor(container: HTMLElement) {
     this.el = container;
     this.objectsEl = container.querySelector('.js-objects') as HTMLElement;
-    this.catcherEl = container.querySelector('.js-catcher') as HTMLElement;
     this.smileyEl = container.querySelector('.js-smiley') as HTMLElement;
     this.svg = container.querySelector('.js-svg') as SVGSVGElement;
     this.path = container.querySelector('.js-lines-circular-path') as SVGPathElement;
 
-    // 物件池：16 frame + 10 star（源站数量）
+    // 物件池：16 frame + 10 star（源站数量）；初始全部 waiting（display:none 不渲染）
     this.objectsEl.querySelectorAll<HTMLElement>('.a-object').forEach((el) => {
+      el.classList.add('is-waiting');
       this.objects.push({
         el, s: 0, x: 0, y: 0, z: -20000, rx: 90, ry: 0, rz: 0,
         vz: 0, vx: 0, vy: 0, vrx: 0, vry: 0,
-        thrown: false, waiting: false, grabbed: false, vanishing: false, vanishAt: 0,
+        thrown: false, waiting: true, grabbed: false, vanishing: false, vanishAt: 0,
       });
     });
 
@@ -119,33 +113,30 @@ export class MyWay {
       const pt = (e as TouchEvent).touches?.[0] ?? (e as MouseEvent);
       const cx = pt.clientX, cy = pt.clientY;
       for (const o of this.objects) {
-        if (!o.thrown || o.grabbed) continue;
+        if (o.waiting || o.grabbed || o.vanishing) continue;
         const r = o.el.getBoundingClientRect();
         if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
-          o.grabbed = true; o.vanishing = false; o.el.classList.remove('is-vanishing');
-          this.thrown--;
+          o.grabbed = true;
+          o.el.classList.add('is-dragging');
           break;
         }
       }
     };
     const move = (e: Event) => {
       const pt = (e as TouchEvent).touches?.[0] ?? (e as MouseEvent);
-      for (const o of this.objects) {
-        if (!o.grabbed) continue;
-        o.vx += (pt.clientX - (o.x - this.top + this.el.offsetTop - scrollY) - o.x) * 0.075;
-        o.vx *= 0.9;
-        o.vy += (pt.clientY - o.y) * 0.075;
-        o.vy *= 0.9;
-        o.ry = o.vx * 0.15;
-        o.rx = o.vy * -0.15;
-      }
-      e.preventDefault();
+      this.mx = pt.clientX; this.my = pt.clientY;
+      if (this.objects.some((o) => o.grabbed)) e.preventDefault();
     };
+    // 源站 objectDragEnd：松手即 is-vanishing（重坠下坠，1s 后回池），不是甩飞重抛
     const up = () => {
       for (const o of this.objects) {
         if (!o.grabbed) continue;
-        o.grabbed = false; o.thrown = true; this.thrown++;
-        o.vz = 40 + rnd(10);
+        o.grabbed = false;
+        o.vanishing = true;
+        o.vy = 0;
+        o.vanishAt = performance.now() + 1000;
+        o.el.classList.remove('is-dragging');
+        o.el.classList.add('is-vanishing');
       }
     };
     addEventListener('mousedown', down); addEventListener('mousemove', move); addEventListener('mouseup', up);
@@ -171,30 +162,33 @@ export class MyWay {
     this.pTarget = Math.min(1, Math.max(0, (scrollY + safeH - start) / (end - start)));
   }
 
-  /** 放射线：笑脸中心 → 顶部竖线 / 左右横排 / 两侧点，+底部整线（射线拓扑为近似重建） */
+  /** 放射线：源站 setLines（source.js:5803）——顶部 s+1 条 + 底部 s+1 条 + 左右各 s-1 条 + 底线，全连笑脸中心 */
   private drawLines() {
-    const segs: Array<Line | Point> = [];
+    const segs: Line[] = [];
     const er = this.el.getBoundingClientRect();
     const sr = this.smileyEl.getBoundingClientRect();
     const cx = sr.left - er.left + sr.width / 2;
-    const cy = sr.top - er.top + sr.height / 2; // 射线全部汇聚到笑脸中心（源站语义）
-    const nV = this.w > 767 ? 12 : 8;
-    for (let i = 1; i <= nV; i++) {
-      const x = (this.w * i) / (nV + 1);
-      segs.push(new Line(cx, cy, x, this.objectsEl.offsetTop));
+    const cy = sr.top - er.top + sr.height / 2;
+    const s = this.w > 767 ? 12 : 8;
+    const r = this.w / s;
+    for (let c = 0; c <= s; c++) {
+      segs.push(new Line(cx, cy, r * c, 0));
+      segs.push(new Line(cx, cy, r * c, this.h));
     }
-    for (let j = 1; j <= 10; j++) {
-      const y = this.objectsEl.offsetTop + (this.objectsEl.offsetHeight * j) / 11;
-      segs.push(new Line(cx, cy, 0, y));
-      segs.push(new Line(cx, cy, this.w, y));
-      if (j % 3 === 0) { segs.push(new Point(0, y)); segs.push(new Point(this.w, y)); }
+    const l = this.h / s;
+    const gap = (this.h - l * s) / 2;
+    for (let c = 1; c < s; c++) {
+      segs.push(new Line(cx, cy, 0, gap + l * c));
+      segs.push(new Line(cx, cy, this.w, gap + l * c));
     }
-    segs.push(new Line(0, this.h - 1, this.w, this.h - 1)); // 底线
+    segs.push(new Line(0, this.h, this.w, this.h)); // 底线
     this.svg.setAttribute('viewBox', `0 0 ${this.w} ${this.h}`);
-    this.path.setAttribute('d', segs.map((s) => s.d).join(' '));
+    this.path.setAttribute('d', segs.map((p) => p.d).join(' '));
+    // 源站 5833：巨字错切幅度 --distortion = hypot(width, (height-smileyY)/2) * .14
+    this.el.style.setProperty('--distortion', (Math.hypot(this.w, (this.h - cy) / 2) * 0.14).toFixed(4));
   }
 
-  /** 初始场内物件：is-waiting + 随机场内位（洗牌让星星也有位） */
+  /** 初始飞行物：源站 firstObjects——从池里取 n 个直接设为飞行态（z=-2e4 深处飞来），非 waiting */
   private firstObjects() {
     let n = Math.min(5, Math.max(2, Math.round(innerWidth * 0.025)));
     const pool = [...this.objects];
@@ -206,12 +200,10 @@ export class MyWay {
       if (n <= 0) break;
       n--;
       this.reset(o, false);
-      o.el.classList.add('is-waiting');
-      o.waiting = true; o.s = 1;
-      o.x = this.w * (0.15 + Math.random() * 0.7);
-      o.y = this.objectsEl.offsetTop + this.objectsEl.offsetHeight * (0.2 + Math.random() * 0.6);
-      o.z = -rnd(800); // 视锥内深度场
-      o.rx = rnd(90) - 45; o.ry = rnd(90) - 45;
+      o.x = o.vx * rnd(200);
+      o.y = o.vy * rnd(200);
+      o.rx = rnd(360); o.ry = rnd(360);
+      o.z = -rnd(20000);
       this.apply(o);
     }
   }
@@ -238,40 +230,50 @@ export class MyWay {
     st.setProperty('--z', `${o.z}px`);
     st.setProperty('--rx', String(o.rx));
     st.setProperty('--ry', String(o.ry));
+    st.setProperty('--rz', String(o.rz));
   }
 
   private throwObject(now: number) {
     if (this.thrown >= this.maxThrown || now < this.nextThrow) return;
-    const pool = this.objects.filter((o) => !o.thrown && !o.grabbed && !o.vanishing);
+    const pool = this.objects.filter((o) => o.waiting);
     if (!pool.length) return;
     const o = pool[Math.floor(rnd(pool.length))];
     this.reset(o, false);
     o.thrown = true; this.thrown++;
-    // 从笑脸中心向前上方抛出（源站语义：物件从笑脸飞向镜头）
-    const sr = this.smileyEl.getBoundingClientRect();
-    const er = this.el.getBoundingClientRect();
-    o.x = sr.left - er.left + sr.width / 2;
-    o.y = sr.top - er.top + sr.height / 2;
-    o.z = -100; o.s = 0.1;
+    // 源站 set()：z=-2e4 从深处飞来，非从笑脸抛出
+    o.z = -20000;
     this.nextThrow = now + (500 + rnd(500)) * (innerWidth > 767 ? 1.25 : 2);
   }
 
-  private move(o: ObjState) {
-    if (o.waiting || o.grabbed) { this.apply(o); return; }
+  /** 源站 objectMove + thrown 物理：拖拽时抓向笑脸中心，松手后下坠消失 */
+  private move(o: ObjState, now: number) {
+    if (o.waiting) { this.apply(o); return; }
+    if (o.grabbed) {
+      const sr = this.smileyEl.getBoundingClientRect();
+      const er = this.el.getBoundingClientRect();
+      const sx = sr.left - er.left + sr.width / 2;
+      const sy = sr.top - er.top + sr.height / 2;
+      const mx = this.smx - er.left, my = this.smy - er.top;
+      o.vx += (mx - sx - o.x) * 0.075; o.vx *= 0.9;
+      o.vy += (my - sy - o.y) * 0.075; o.vy *= 0.9;
+      o.vz += (0 - o.z) * 0.3;
+      o.z = Math.min(o.z, 500);
+      o.s += (1 - o.s) * 0.5;
+      o.rz = o.ry + o.rx;
+      this.apply(o);
+      return;
+    }
     o.z += o.vz;
-    if (!o.grabbed && !o.vanishing) {
-      o.x += o.vx; o.y += o.vy;
-      o.rx += o.vrx; o.ry += o.vry;
-    }
+    o.x += o.vx; o.y += o.vy;
+    o.rx += o.vrx; o.ry += o.vry;
+    if (o.z < 1000) o.s = Math.min(1, o.s + 0.005);
     if (o.vanishing) {
-      o.vy += 0.5; o.y += o.vy * 2; o.s = Math.max(0, o.s - 0.03);
-    } else if (o.z <= 500) {
-      o.s = Math.min(1, o.s + 0.02);
+      o.vy += 0.5; o.y += o.vy;
     }
-    if (o.z > 1000 || (o.vanishing && o.s <= 0)) {
-      o.el.classList.remove('is-vanishing');
+    const gone = o.z > 1000 || (o.vanishing && now >= o.vanishAt);
+    if (gone) {
+      if (o.thrown) { this.thrown--; o.thrown = false; }
       this.reset(o, true);
-      if (o.thrown) this.thrown--;
       return;
     }
     this.apply(o);
@@ -285,10 +287,6 @@ export class MyWay {
 
     this.p += (this.pTarget - this.p) * 0.1;
     this.el.style.setProperty('--scroll-progress', String(this.p));
-    // catcher 透视错切幅度
-    const ch = this.catcherEl.offsetHeight;
-    const d = Math.min(0.35, (Math.hypot(this.w, ch / 2) * 0.14) / 1000);
-    this.el.style.setProperty('--distortion', d.toFixed(4)); // 剪切系数 m32，配合 px 视距
 
     if (this.mx >= 0) {
       this.smx += (this.mx - this.smx) * 0.1;
@@ -297,7 +295,7 @@ export class MyWay {
 
     if (this.p > 0.02 && this.p < 0.98) {
       this.throwObject(now);
-      for (const o of this.objects) this.move(o);
+      for (const o of this.objects) this.move(o, now);
     }
   }
 

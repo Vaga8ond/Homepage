@@ -2,9 +2,14 @@
 
 .s-my-way {
   --padding: 40rem;
+  --smiley-size: 5.625rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  z-index: 1;
-  padding: calc(var(--padding) * 0.75) var(--padding) calc(var(--padding) * 1.5);
+  z-index: 3;
+  padding: calc(var(--padding) * 0.75) 0 calc(var(--padding) * 1.5);
   clip-path: inset(-100vh 0 calc(var(--padding) * -1.375));
   background: var(--color-primary);
 }
@@ -12,28 +17,30 @@
 @media (max-width: 1680px) { .s-my-way { --padding: 35rem; } }
 @media (max-width: 1530px) { .s-my-way { --padding: 30rem; } }
 @media (max-width: 1280px) { .s-my-way { --padding: 25rem; } }
-@media (max-width: 987px)  { .s-my-way { --padding: 30rem; } }
+@media (max-width: 987px)  { .s-my-way { --padding: 30rem; padding-bottom: calc(var(--padding) * 1.25); clip-path: inset(-100vh 0 calc(var(--padding) * -1.2)); } }
 @media (max-width: 767px)  { .s-my-way { --padding: 25rem; } }
 @media (max-width: 576px)  { .s-my-way { --padding: 18rem; } }
 
-/* ── 笑脸 ─────────────────────────────────────────── */
+/* ── 笑脸（眼嘴为源站 path，fill 渲染）───────────────── */
 .s-my-way .s__smiley {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 5.625rem;
-  height: 5.625rem;
-  margin: -2.8125rem 0 0 -2.8125rem;
+  width: var(--smiley-size);
+  height: var(--smiley-size);
+  margin: calc(var(--smiley-size) / -2) 0 0 calc(var(--smiley-size) / -2);
   z-index: 2;
   animation: s-my-way-smiley 10s linear infinite;
 }
 .s-my-way .s__smiley circle { fill: var(--color-secondary); }
-.s-my-way .s__smiley path { fill: none; stroke: var(--color-secondary); stroke-width: 3; }
+/* 五官填背景红 → 视觉镂空（源站效果） */
+.s-my-way .s__smiley path { fill: var(--color-primary); }
 @keyframes s-my-way-smiley { to { transform: rotate(360deg); } }
 
 /* ── 物件层 ───────────────────────────────────────── */
 .s-my-way .s__objects {
   position: relative;
+  width: 100%;
   height: 160vh;
   margin: -30vh 0;
   perspective: 1000px;
@@ -41,24 +48,6 @@
 }
 @media (max-width: 987px) {
   .s-my-way .s__objects { perspective-origin: 50% calc(50% - var(--padding) * 0.275); }
-}
-
-.s-my-way .s__ruler {
-  position: absolute;
-  bottom: 0;
-  left: calc(var(--padding) * -0.25);
-  width: calc(100% + var(--padding) * 1.5);
-  height: calc(var(--padding) * 0.4);
-  border: 1px solid var(--color-shadow);
-  border-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-family-fraktion);
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-secondary);
 }
 
 /* ── 3D 物件（frame / star）────────────────────────── */
@@ -71,135 +60,250 @@
   --ry: 0;
   --rz: 0;
   --size: 1;
-  --depth: 500px;
+  --depth: 1rem;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 50%;
+  left: 50%;
+  display: block;
+  cursor: grab;
   transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), var(--z))
-    rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg)) rotateZ(calc(var(--rz) * 1deg))
+    rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg)) rotate(calc(var(--rz) * 1deg))
     scale(var(--s));
+  transform-style: preserve-3d;
+  pointer-events: none;
+  will-change: transform;
 }
+.s-my-way .a-object.is-waiting { display: none; transform: scale(0); }
+.s-my-way .a-object.is-dragging { z-index: 2; cursor: grabbing; }
 
-.a-object--frame { width: 500px; }
+.a-object--frame { width: 500px; pointer-events: all; }
 @media (max-width: 767px) { .a-object--frame { width: 300px; } }
 
-.a-object .a__inner {
-  position: relative;
-  background: var(--color-shadow);
-  padding: 1.5rem;
+.s-my-way .a-object--frame .a__inner {
+  display: block;
+  margin: 0;
+  padding: 1.5rem 1.5rem 0;
+  background: var(--color-secondary);
   transform-style: preserve-3d;
 }
-.a-object .a__placeholder {
+.s-my-way .a-object--frame .a__placeholder {
   display: block;
   width: 100%;
   aspect-ratio: var(--ar, 4 / 3);
-  background: repeating-linear-gradient(45deg, var(--color-shadow) 0 12px, var(--color-primary) 12px 24px);
+  background: repeating-linear-gradient(45deg, var(--color-shadow) 0 12px, var(--color-secondary) 12px 24px);
 }
-.a-object .a__caption {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1rem;
+.s-my-way .a-object--frame .a__caption {
+  display: block;
+  padding: 1.2rem 0;
+  color: var(--color-white);
   font-family: var(--font-family-fraktion);
-  font-size: 0.75rem;
-  color: var(--color-secondary);
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
 }
-.a-object .a__caption s { text-decoration: line-through; }
+.s-my-way .a-object--frame .a__caption s { text-decoration: line-through; }
 
-/* 背板 + 盒身侧板（源站 translateZ(--depth*-1+1px)）*/
-.a-object .a__back {
-  position: absolute;
-  inset: -1px;
-  background: var(--color-shadow);
-  transform: translateZ(calc(var(--depth) * -1 + 1px)) rotateY(180deg);
-}
-.a-object .a__side--horizontal {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  height: 1rem;
-  background: var(--color-shadow);
-  transform-origin: top;
-  transform: rotateX(-90deg);
-}
-.a-object .a__side--vertical {
+/* 背板（源站 :after）*/
+.s-my-way .a-object--frame .a__back {
   position: absolute;
   top: 0;
-  left: 100%;
-  width: 1rem;
+  left: 0;
+  width: 100%;
   height: 100%;
-  background: var(--color-shadow);
-  transform-origin: left;
-  transform: rotateY(90deg);
+  background: var(--color-secondary);
+  transform: translateZ(calc(var(--depth) * -1 + 1px)) rotateY(180deg);
 }
 
-/* 星星：前后贴图 + 4 折角 */
-.a-object--star { left: 65%; width: calc(var(--size) * 400px); height: calc(var(--size) * 400px); }
-@media (max-width: 767px) { .a-object--star { width: calc(var(--size) * 200px); height: calc(var(--size) * 200px); } }
-.a-object--star .a__side {
+/* 盒身四棱：side 为满尺寸容器，:before/:after 为 1rem 窄条 */
+.s-my-way .a-object--frame .a__side {
   position: absolute;
-  inset: 0;
-  background: url('/images/asset-star.svg') center / contain no-repeat;
-  backface-visibility: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
 }
-.a-object--star .a__side--back { transform: rotateY(180deg); }
-.a-object--star .a__side--top-left { transform: rotateX(81deg); transform-origin: top; }
-.a-object--star .a__side--top-right { transform: rotateY(81deg); transform-origin: right; }
-.a-object--star .a__side--bottom-left { transform: rotateY(-81deg); transform-origin: left; }
-.a-object--star .a__side--bottom-right { transform: rotateX(-81deg); transform-origin: bottom; }
+.s-my-way .a-object--frame .a__side::before,
+.s-my-way .a-object--frame .a__side::after {
+  position: absolute;
+  background: var(--color-shadow);
+  backface-visibility: visible;
+  content: "";
+}
+.s-my-way .a-object--frame .a__side--horizontal::before {
+  top: 0; left: 0;
+  width: var(--depth); height: 100%;
+  transform: rotateY(90deg);
+  transform-origin: 0 50%;
+}
+.s-my-way .a-object--frame .a__side--horizontal::after {
+  top: 0; right: 0;
+  width: var(--depth); height: 100%;
+  transform: rotateY(-90deg);
+  transform-origin: 100% 50%;
+}
+.s-my-way .a-object--frame .a__side--vertical::before {
+  top: 0; left: 0;
+  width: 100%; height: var(--depth);
+  transform: rotateX(-90deg);
+  transform-origin: 50% 0;
+}
+.s-my-way .a-object--frame .a__side--vertical::after {
+  bottom: 0; left: 0;
+  width: 100%; height: var(--depth);
+  transform: rotateX(90deg);
+  transform-origin: 50% 100%;
+}
 
-/* 消失动画：无 sprite-vanish.png 资产，用缩放淡出近似（源站 3000% steps(29) 条纹 dissolve） */
-.a-object.is-vanishing { animation: a-object-vanish 0.75s steps(29) forwards; }
-.a-object--frame.is-vanishing { animation-delay: 0.105s; }
+/* 星星：:before/:after 正反贴图 + 4 折角侧（8 条 81° 棱）*/
+.s-my-way .a-object--star { --depth: 1rem; left: 65%; width: calc(var(--size) * 400px); height: calc(var(--size) * 400px); pointer-events: all; }
+@media (max-width: 767px) { .a-object--star { width: calc(var(--size) * 200px); height: calc(var(--size) * 200px); } }
+.s-my-way .a-object--star::before,
+.s-my-way .a-object--star::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url('/images/asset-star.svg') center / cover no-repeat;
+  content: "";
+}
+.s-my-way .a-object--star::after { transform: translateZ(calc(var(--depth) * -1 + 1px)); }
+.s-my-way .a-object--star .a__side {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.s-my-way .a-object--star .a__side::before,
+.s-my-way .a-object--star .a__side::after {
+  position: absolute;
+  background: var(--color-secondary);
+  backface-visibility: visible;
+  content: "";
+}
+.s-my-way .a-object--star .a__side--top-left::before {
+  top: 0; left: 0;
+  width: var(--depth); height: 50%;
+  transform: rotateY(90deg) rotateX(-81deg);
+  transform-origin: 0 100%;
+}
+.s-my-way .a-object--star .a__side--top-left::after {
+  top: 0; left: 0;
+  width: 50%; height: var(--depth);
+  transform: rotateX(-90deg) rotateY(81deg);
+  transform-origin: 100% 0;
+}
+.s-my-way .a-object--star .a__side--top-right::before {
+  top: 0; right: 0;
+  width: var(--depth); height: 50%;
+  transform: rotateY(-90deg) rotateX(-81deg);
+  transform-origin: 100% 100%;
+}
+.s-my-way .a-object--star .a__side--top-right::after {
+  top: 0; right: 0;
+  width: 50%; height: var(--depth);
+  transform: rotateX(-90deg) rotateY(-81deg);
+  transform-origin: 0 0;
+}
+.s-my-way .a-object--star .a__side--bottom-left::before {
+  bottom: 0; left: 0;
+  width: var(--depth); height: 50%;
+  transform: rotateY(90deg) rotateX(81deg);
+  transform-origin: 0 0;
+}
+.s-my-way .a-object--star .a__side--bottom-left::after {
+  bottom: 0; left: 0;
+  width: 50%; height: var(--depth);
+  transform: rotateX(90deg) rotateY(81deg);
+  transform-origin: 100% 100%;
+}
+.s-my-way .a-object--star .a__side--bottom-right::before {
+  bottom: 0; right: 0;
+  width: var(--depth); height: 50%;
+  transform: rotateY(-90deg) rotateX(81deg);
+  transform-origin: 100% 0;
+}
+.s-my-way .a-object--star .a__side--bottom-right::after {
+  bottom: 0; right: 0;
+  width: 50%; height: var(--depth);
+  transform: rotateX(90deg) rotateY(-81deg);
+  transform-origin: 0 100%;
+}
+
+/* 消失动画：无 sprite-vanish.png 资产，用缩放淡出近似（源站 mask 精灵图 steps(29)）*/
+.s-my-way .a-object.is-vanishing { animation: a-object-vanish 0.75s steps(29) forwards; }
 @keyframes a-object-vanish {
   60% { opacity: 1; }
-  to { opacity: 0; transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), var(--z)) rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg)) scale(calc(var(--s) * 0.2)); }
+  to { opacity: 0; transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), var(--z)) rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg)) rotate(calc(var(--rz) * 1deg)) scale(calc(var(--s) * 0.2)); }
 }
 
-/* ── Catcher 错切文字 ─────────────────────────────── */
+/* ── Catcher 错切文字（源站 matrix3d m32=z'=d·y 配 perspective 产生梯形）── */
 .s-my-way .s__catcher {
-  --distortion: 0;
-  --amplitude: 100%;
-  --offset: 0%;
-  position: relative;
-  z-index: 3;
-  height: calc(var(--padding) * 1.05 + 2.8125rem);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  text-align: center;
+  --amplitude: 50%;
+  --offset: 15%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: calc(var(--padding) * 1.05 + var(--smiley-size) / 2);
+  perspective: calc(var(--distortion) * 0.85em);
+  user-select: none;
   font-family: var(--font-family-bigger, var(--font-display, sans-serif));
+  font-weight: 700;
   font-size: calc(var(--padding) * 1.2);
   line-height: 0.82;
-  perspective: calc(var(--distortion) * 4000px);
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 @media (max-width: 987px) {
-  .s-my-way .s__catcher { font-size: calc(var(--padding) * 0.75 * 1.2); --amplitude: 75%; --offset: 27.5%; }
+  .s-my-way .s__catcher {
+    --amplitude: 75%;
+    --offset: 27.5%;
+    perspective: calc(var(--distortion) * 1.05em);
+    font-size: calc(var(--padding) * 0.75);
+  }
 }
 
 .s-my-way .s__catcher__distorted-wrapper {
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   height: calc(var(--padding) * 1.5);
   overflow: hidden;
-  perspective: calc(var(--distortion) * 3500px);
+  perspective: calc(var(--distortion) * 0.7em);
 }
 @media (max-width: 987px) {
-  .s-my-way .s__catcher__distorted-wrapper { perspective: calc(var(--distortion) * 3000px); }
+  .s-my-way .s__catcher__distorted-wrapper { perspective: calc(var(--distortion) * 0.85em); }
 }
 .s-my-way .s__catcher__distorted {
   position: absolute;
-  left: 0;
+  bottom: 0;
+  left: -100%;
   width: 300%;
-  transform: translateX(-50%);
-  transform-style: preserve-3d;
+  height: calc(var(--padding) * 1.05 + var(--smiley-size) / 2);
+  transform-origin: 50% 100%;
+  transform: matrix3d(1, 0, 0, 0, 0, 1, var(--distortion), 0, 0, 0, 1, 0, 0, 0, 0, 1);
 }
-.s-my-way .s__catcher__text--distorted,
-.s-my-way .s__catcher__text--normal {
-  display: block;
-  transform: matrix3d(1, 0, 0, 0, 0, 1, var(--distortion), 0, 0, 0, 1, 0, 0, 0, 0, 1)
-    translateY(calc(var(--scroll-progress, 0) * var(--amplitude) - var(--offset)));
+
+.s-my-way .s__catcher__text {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  will-change: transform;
 }
+.s-my-way .s__catcher__text--distorted {
+  bottom: 0;
+  transform: translate3d(0, calc(var(--scroll-progress, 0) * var(--amplitude) - var(--offset)), 0);
+}
+
 .s-my-way .s__catcher__normal-wrapper {
   position: absolute;
   top: calc(100% - 1px);
@@ -208,17 +312,26 @@
   height: calc(100% + 100vh);
   overflow: hidden;
 }
+.s-my-way .s__catcher__normal {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 300%;
+  height: 100%;
+}
 .s-my-way .s__catcher__text--normal {
-  transform: translateY(calc(var(--scroll-progress, 0) * var(--amplitude) - 100% - var(--offset)));
+  top: 0;
+  transform: translate3d(0, calc(var(--scroll-progress, 0) * var(--amplitude) - 100% - var(--offset)), 0);
 }
 
 /* ── svg 放射线 ───────────────────────────────────── */
 .s-my-way .s__svg {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  z-index: 1;
   fill: none;
   stroke: var(--color-shadow);
   stroke-width: 1;
@@ -227,6 +340,8 @@
 
 /* ── reduced 降级 ─────────────────────────────────── */
 .s-my-way.is-reduced .s__objects { margin: 0; height: auto; min-height: 40vh; }
-.s-my-way.is-reduced .a-object { position: relative; display: inline-block; transform: none; opacity: 0.25; margin: 2rem; }
+.s-my-way.is-reduced .a-object { position: relative; display: inline-block; transform: none; opacity: 0.25; margin: 2rem; top: auto; left: auto; }
+.s-my-way.is-reduced .a-object.is-waiting { display: inline-block; transform: none; }
 .s-my-way.is-reduced .s__catcher__text--distorted,
 .s-my-way.is-reduced .s__catcher__text--normal { transform: none; }
+.s-my-way.is-reduced .s__catcher__distorted { transform: none; }
