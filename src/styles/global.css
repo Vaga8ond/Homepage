@@ -116,7 +116,7 @@ x-waves .a__line { fill: none; stroke: var(--color-secondary); stroke-width: 1.4
 .s-hero__star { width: clamp(24px, 3.6vw, 52px); height: clamp(24px, 3.6vw, 52px); flex: none; transform-origin: 50% 50%; }
 
 /* ============ Separator (binary) ============ */
-x-separator { display: flex; flex-direction: row; align-items: center; justify-content: space-between; position: relative; margin: 0 var(--site-pad); width: calc(100% - 2 * var(--site-pad)); padding: 0 1rem; height: 2.25rem; border-top: 1px solid var(--color-secondary); border-bottom: 1px solid var(--color-secondary); font: 400 8px/16px var(--font-mono); }
+x-separator { display: flex; flex-direction: row; align-items: center; justify-content: space-between; position: relative; width: 100%; padding: 0 1rem; height: 2.25rem; border-top: 1px solid var(--color-secondary); border-bottom: 1px solid var(--color-secondary); font: 400 8px/16px var(--font-mono); }
 x-separator .a__triangle { position: absolute; top: 50%; border-top: 2px solid transparent; border-bottom: 2px solid transparent; transform: translate3d(0, -40%, 0); }
 x-separator .a__triangle:first-child { left: 1rem; border-left: 4px solid var(--color-secondary); }
 x-separator .a__triangle:last-child { right: 1rem; border-right: 4px solid var(--color-secondary); }

@@ -24,6 +24,9 @@ export class Waves extends HTMLElement {
     $.on('resize', this.onResize, this);
     this.addEventListener('intersect', (e: Event) => this.onIntersect(e), { passive: true });
     this.addEventListener('introend', () => { this.isInteractive = true; this.revealed = true; this.paths.forEach((p) => { p.style.strokeDashoffset = '0'; }); });
+    document.fonts?.ready.then(() => {
+      if (this.clientHeight !== this.bounding.height) { this.setSize(); this.setLines(); }
+    });
     if (REDUCED) { this.revealed = true; this.drawLines(); }
   }
 
