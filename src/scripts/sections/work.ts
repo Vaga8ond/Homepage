@@ -2,7 +2,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { $, ticker, REDUCED } from '../core';
 
-/* <x-work>: project card driven by a `progress` attribute (1 → -1).
+/* <a-work>: project card driven by a `progress` attribute (1 → -1).
    Plays its video while in the focal zone (-1, 1 exclusive). */
 class XWork extends HTMLElement {
   static get observedAttributes() { return ['progress']; }
@@ -31,7 +31,7 @@ class XWork extends HTMLElement {
     }
   }
 }
-customElements.define('x-work', XWork);
+customElements.define('a-work', XWork);
 
 type Ghost = { el: HTMLSpanElement; x: number; y: number; z: number; i: number; p: number; ap: number; mx: number; my: number };
 
@@ -78,8 +78,8 @@ export class Work {
       pathInner: this.el.querySelector('.js-mask-path-inner') as SVGPathElement,
       pathLines: this.el.querySelector('.js-mask-path-lines') as SVGPathElement,
     };
-    this.el.querySelectorAll('.js-letter-src').forEach((l) => this.letters.push({ el: l as HTMLElement, ghosts: [] }));
-    this.container.querySelectorAll('x-work').forEach((w) => this.works.push({ el: w as HTMLElement }));
+    this.el.querySelectorAll('.js-letter').forEach((l) => this.letters.push({ el: l as HTMLElement, ghosts: [] }));
+    this.container.querySelectorAll('a-work').forEach((w) => this.works.push({ el: w as HTMLElement }));
     if (REDUCED) { this.initReduced(); return; }
     this.setCtxStyle();
     this.setSize();

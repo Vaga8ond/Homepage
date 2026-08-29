@@ -15,13 +15,13 @@ const projects = [
 ];
 ---
 <Layout title="SPIKE — Creative Developer" description="Creative developer portfolio: animation-driven, high-impact websites. GSAP · WebGL · Motion.">
-  <!-- Preloader -->
-  <div class="preloader js-preloader">
-    <div class="preloader__border preloader__border--top"></div>
-    <div class="preloader__border preloader__border--left"></div>
-    <div class="preloader__border preloader__border--right"></div>
-    <div class="preloader__logo">
-      <span class="line line--v line--v-1"></span><span class="line line--h line--h-1"></span><span class="line line--v line--v-2"></span><span class="line line--v line--v-3"></span><span class="line line--h line--h-2"></span><span class="line line--v line--v-4"></span><span class="line line--h line--h-3"></span><span class="line line--v line--v-5"></span>
+  <!-- Intro -->
+  <div class="site-intro js-intro">
+    <div class="site-intro__border site-intro__border--top js-border-top"></div>
+    <div class="site-intro__border site-intro__border--left js-border-left"></div>
+    <div class="site-intro__border site-intro__border--right js-border-right"></div>
+    <div class="sb-logo">
+      <span class="line line--v js-logo-line-v js-logo-line-v-1"></span><span class="line line--h js-logo-line-h js-logo-line-h-1"></span><span class="line line--v js-logo-line-v js-logo-line-v-2"></span><span class="line line--v js-logo-line-v js-logo-line-v-3"></span><span class="line line--h js-logo-line-h js-logo-line-h-2"></span><span class="line line--v js-logo-line-v js-logo-line-v-4"></span><span class="line line--h js-logo-line-h js-logo-line-h-3"></span><span class="line line--v js-logo-line-v js-logo-line-v-5"></span>
     </div>
   </div>
 
@@ -76,23 +76,23 @@ const projects = [
 
       <!-- Hero -->
       <section class="s-hero" data-intersect id="top">
-        <x-waves class="s__waves" data-intersect>
+        <a-waves class="s__waves" data-intersect>
           <svg class="js-svg" xmlns="http://www.w3.org/2000/svg"></svg>
-        </x-waves>
-        <div class="s-hero__content js-content">
-          <x-separator class="s-hero__binary style--primary js-sep-item" data-intersect></x-separator>
-          <h1 class="s-hero__title">
+        </a-waves>
+        <div class="s__content js-content">
+          <a-separator class="s__separator style--primary js-separator" data-intersect></a-separator>
+          <h1 class="s__title">
             <span class="js-word">Creative</span>
-            <svg class="s-hero__star js-star" viewBox="0 0 48 48" aria-hidden="true">
+            <svg class="s__title__asset js-star" viewBox="0 0 48 48" aria-hidden="true">
               <path d="M24 2c2.2 13 7 17.8 20 20-13 2.2-17.8 7-20 20-2.2-13-7-17.8-20-20 13-2.2 17.8-7 20-20z" fill="currentColor"></path>
             </svg>
             <span class="js-word">Developer</span>
           </h1>
-          <x-separator class="s-hero__binary style--primary js-sep-item" data-intersect></x-separator>
+          <a-separator class="s__separator style--primary js-separator" data-intersect></a-separator>
         </div>
       </section>
 
-      <x-separator class="style--secondary s__separator" data-intersect></x-separator>
+      <a-separator class="style--secondary s__separator" data-intersect></a-separator>
 
       <!-- About -->
       <section class="s-about" id="about" data-intersect>
@@ -118,7 +118,7 @@ const projects = [
         </div>
       </section>
 
-      <x-separator class="style--secondary s__separator" data-intersect></x-separator>
+      <a-separator class="style--secondary s__separator" data-intersect></a-separator>
 
       <!-- Work -->
       <section class="s-work" id="work" data-intersect>
@@ -126,20 +126,20 @@ const projects = [
           <canvas class="s-work__canvas js-canvas"></canvas>
           <div class="s-work__scene js-scene">
             <h2 class="s-work__title" aria-hidden="true">
-              <span class="js-letter-src">W</span><span class="js-letter-src">O</span><span class="js-letter-src">R</span><span class="js-letter-src">K</span>
+              <span class="js-letter">W</span><span class="js-letter">O</span><span class="js-letter">R</span><span class="js-letter">K</span>
             </h2>
             {projects.map((p, i) => (
-              <x-work progress="1">
-                <div class="x-work__inner">
+              <a-work class="js-work" progress="1">
+                <div class="a-work__inner">
                   <a href="#" target="_blank" rel="noopener" aria-label={`${p.title} — ${p.tag}`}>
-                    <video class="x-work__video js-video" data-src={p.video} loop muted playsinline width="1082" height="636" preload="none"></video>
-                    <div class="x-work__caption">
-                      <span class="x-work__caption-text">{p.title} — {p.tag}</span>
-                      <span class="x-work__caption-key">#{p.key}-{String(i).padStart(4, '0')}/{projects.length}</span>
+                    <video class="a-work__video js-video" data-src={p.video} loop muted playsinline width="1082" height="636" preload="none"></video>
+                    <div class="a-work__caption">
+                      <span class="a-work__caption-text">{p.title} — {p.tag}</span>
+                      <span class="a-work__caption-key">#{p.key}-{String(i).padStart(4, '0')}/{projects.length}</span>
                     </div>
                   </a>
                 </div>
-              </x-work>
+              </a-work>
             ))}
           </div>
           <div class="s-work__mask js-mask">
@@ -153,21 +153,9 @@ const projects = [
         </div>
       </section>
 
-      <!-- Playground -->
-      <section class="s-play" id="play" data-intersect>
-        <svg class="s-play__svg js-svg" xmlns="http://www.w3.org/2000/svg">
-          <path class="js-lines-path" d=""></path>
-        </svg>
-        <div class="js-ruler" hidden></div>
-        <div class="s-play__inner">
-          <span class="s-play__label">My way of working</span>
-          <div class="s-play__catcher js-catcher">
-            <span class="catcher--distorted">Play</span>
-            <span class="catcher--normal">Ship it</span>
-          </div>
-          <p class="s-play__hint">Grab the cards. Throw them around. They always come back.</p>
-        </div>
-        <div class="s-play__smiley js-smiley" aria-hidden="true">
+      <!-- My way -->
+      <section class="s-my-way" id="my-way" data-intersect>
+        <div class="s__smiley js-smiley" aria-hidden="true">
           <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <circle cx="24" cy="24" r="22" fill="currentColor" opacity=".18"/>
             <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="1.6"/>
@@ -175,14 +163,10 @@ const projects = [
             <path d="M14 29q10 9 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
           </svg>
         </div>
-        <div class="s-play__objects js-objects">
-          <div class="p-obj"><span>Design</span><small>systems first</small></div>
-          <div class="p-obj"><span>Code</span><small>vanilla & fast</small></div>
-          <div class="p-obj"><span>Motion</span><small>60fps or nothing</small></div>
-          <div class="p-obj"><span>Test</span><small>break it early</small></div>
-          <div class="p-obj"><span>Ship</span><small>on friday, sorry</small></div>
-          <div class="p-obj"><span>Play</span><small>seriously</small></div>
-          <div class="p-obj"><span>Debug</span><small>with love</small></div>
+        <div class="s__objects js-objects">
+          <a-object>Design — systems first</a-object>
+          <a-object>Code — vanilla &amp; fast</a-object>
+          <a-object>Motion — 60fps or nothing</a-object>
         </div>
       </section>
 
@@ -210,6 +194,13 @@ const projects = [
           <span>No frameworks were harmed</span>
         </div>
       </section>
+
+      <!-- Foot -->
+      <footer class="site-foot">
+        <svg width="60" height="60" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spike">
+          <text x="140" y="196" text-anchor="middle" font-family="Anton, sans-serif" font-weight="400" font-size="168" fill="currentColor">SP</text>
+        </svg>
+      </footer>
   </div>
 
   <div class="site-mount js-mount" aria-hidden="true"></div>

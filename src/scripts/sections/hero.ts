@@ -25,7 +25,7 @@ export class Hero {
     document.addEventListener('intro', () => this.intro(), { once: true });
     $.once('siteLoaded', () => {
       if (REDUCED) return;
-      const waves = this.el.querySelector('x-waves');
+      const waves = this.el.querySelector('a-waves');
       const lines = this.el.querySelectorAll('.js-line');
       gsap.fromTo(lines, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 3, ease: 'expo.out', stagger: { amount: .5, from: 'edges', ease: 'power3.inOut' }, delay: .5 });
       gsap.delayedCall(2.5, () => waves?.dispatchEvent(new CustomEvent('introend')));
@@ -45,7 +45,7 @@ export class Hero {
 
   private intro() {
     const content = this.el.querySelector('.js-content') as HTMLElement;
-    const seps = this.el.querySelectorAll('.js-sep-item');
+    const seps = this.el.querySelectorAll('.js-separator');
     const star = this.el.querySelector('.js-star');
     const inners = content.querySelectorAll('.char__inner');
     const tl = gsap.timeline();

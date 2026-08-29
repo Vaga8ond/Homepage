@@ -4,7 +4,7 @@ import { $, ticker, REDUCED } from '../core';
 export class Preloader {
   private el: HTMLElement;
   constructor() {
-    this.el = document.querySelector('.js-preloader') as HTMLElement;
+    this.el = document.querySelector('.js-intro') as HTMLElement;
     if (document.readyState === 'complete') ticker.nextTick(this.init, this);
     else $.once('siteLoaded', this.init, this);
   }
@@ -16,11 +16,11 @@ export class Preloader {
       this.finish();
       return;
     }
-    const vLines = this.el.querySelectorAll('.line--v');
-    const hLines = this.el.querySelectorAll('.line--h');
-    const borderTop = this.el.querySelector('.preloader__border--top');
-    const borderLeft = this.el.querySelector('.preloader__border--left');
-    const borderRight = this.el.querySelector('.preloader__border--right');
+    const vLines = this.el.querySelectorAll('.js-logo-line-v');
+    const hLines = this.el.querySelectorAll('.js-logo-line-h');
+    const borderTop = this.el.querySelector('.js-border-top');
+    const borderLeft = this.el.querySelector('.js-border-left');
+    const borderRight = this.el.querySelector('.js-border-right');
     const tl = gsap.timeline();
     tl.set(this.el, { background: 'transparent' }, 0);
     tl.fromTo(vLines, { scaleY: 0 }, { scaleY: 1, duration: 1, ease: 'power4.inOut', stagger: .15 }, 0);

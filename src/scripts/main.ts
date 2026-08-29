@@ -6,7 +6,6 @@ import { Head } from './sections/head';
 import { Hero } from './sections/hero';
 import { About } from './sections/about';
 import { Work } from './sections/work';
-import { Playground } from './sections/playground';
 import { Cta } from './sections/cta';
 import { Scrollbar } from './scrollbar';
 
@@ -24,7 +23,6 @@ const boot = () => {
   safe('hero', () => new Hero());
   safe('about', () => new About());
   safe('work', () => new Work());
-  safe('playground', () => new Playground());
   safe('cta', () => new Cta());
   $.on('unlockScroll', () => app.unlockScroll());
 };

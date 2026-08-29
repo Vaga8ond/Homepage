@@ -1,7 +1,7 @@
 import { $, ticker, REDUCED } from '../core';
 import { Perlin, lerp } from '../utils';
 
-/* <x-waves>: SVG vertical polylines displaced by Perlin noise,
+/* <a-waves>: SVG vertical polylines displaced by Perlin noise,
    pushed by mouse velocity (spring return). Interactive after "introend". */
 export class Waves extends HTMLElement {
   private svg: SVGSVGElement;
@@ -137,4 +137,4 @@ export class Waves extends HTMLElement {
     this.drawLines();
   }
 }
-customElements.define('x-waves', Waves);
+customElements.define('a-waves', Waves);

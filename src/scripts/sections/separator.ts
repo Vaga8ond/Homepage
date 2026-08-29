@@ -1,6 +1,6 @@
 import { $, REDUCED } from '../core';
 
-/* <x-separator>: triangles + binary code groups separated by stripes.
+/* <a-separator>: triangles + binary code groups separated by stripes.
    Each char is the "01" pseudo-element trick: a transparent text node for
    width, the visible glyph shifted by the a__char--0/1 class. */
 export class Separator extends HTMLElement {
@@ -59,4 +59,4 @@ export class Separator extends HTMLElement {
     });
   }
 }
-customElements.define('x-separator', Separator);
+customElements.define('a-separator', Separator);
