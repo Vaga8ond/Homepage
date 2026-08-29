@@ -35,6 +35,7 @@ export class Preloader {
   }
 
   private finish() {
+    (document.querySelector('.js-mount') as HTMLElement | null)?.style.setProperty('opacity', '1');
     this.el.remove();
     document.documentElement.classList.remove('is-scroll-blocked');
     $.emit('unlockScroll');
