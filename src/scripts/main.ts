@@ -5,6 +5,7 @@ import { Hero } from './hero';
 import { About } from './about';
 import { Work } from './work';
 import { MyWay } from './my-way';
+import { Cta } from './cta';
 import './waves';
 import './separator';
 
@@ -33,6 +34,10 @@ const boot = () => {
   safe('my-way', () => {
     const el = document.querySelector('.s-my-way');
     if (el) new MyWay(el as HTMLElement).init();
+  });
+  safe('cta', () => {
+    const el = document.querySelector('.s-cta');
+    if (el) new Cta(el as HTMLElement).init();
   });
   // intro 契约桩：head/hero 等入场都挂 'intro' 事件；P7 preloader 建成后移除
   safe('intro-signal', () => $.once('siteLoaded', () => document.dispatchEvent(new CustomEvent('intro'))));

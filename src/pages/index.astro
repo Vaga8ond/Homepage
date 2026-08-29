@@ -295,6 +295,68 @@ const sep = (groups: number) => `<span class="a__triangle"></span><span class="a
         <path class="s__svg__circular-path js-lines-circular-path" d="" />
       </svg>
     </section>
+
+    <section class="s-cta" data-intersect>
+      <div id="contact" class="s__inner js-container">
+        <div class="s__hover js-hover">
+          <div class="s__button js-button">
+            <div class="s__button__inner">
+              <div class="s__button__text js-button-text">GO</div>
+            </div>
+          </div>
+          <div class="s__cta js-cta">
+            <div class="s__cta__line s__cta__line--top">
+              <div class="s__cta__text">
+                {['L', 'e', 't', 's'].map((c) => (
+                  <span class="s__cta__char">
+                    {[0, 1, 2, 3].map(() => (
+                      <span class="s__cta__char__slice">{c === 't' ? <>t<span class="sup">'</span></> : c}</span>
+                    ))}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div class="s__cta__line s__cta__line--bottom">
+              <div class="s__cta__text">
+                {['R', 'o', 'c', 'k'].map((c) => (
+                  <span class="s__cta__char">
+                    {[0, 1, 2, 3].map(() => (
+                      <span class="s__cta__char__slice">{c}</span>
+                    ))}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <a href="mailto:hi@wodniack.dev" class="s__cta__link">hi@wodniack.dev</a>
+            <div class="s__cta__stars">
+              {[0, 1, 2, 3].map(() => (
+                <svg class="s__cta__star" width="49" height="49" viewBox="0 0 49 49" fill="none" aria-hidden="true">
+                  <path d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z" />
+                </svg>
+              ))}
+            </div>
+            <div class="a-dots"></div>
+          </div>
+        </div>
+      </div>
+      <div class="s__grid js-grid">
+        <svg class="s__grid__svg js-grid-svg">
+          <path class="s__grid__path js-grid-path" d="" />
+        </svg>
+      </div>
+    </section>
+
+    <footer class="site-foot">
+      <div class="site-foot__logo">
+        <a href="/">
+          <svg width="280" height="280" viewBox="0 0 280 280" fill="none" aria-hidden="true">
+            <path d="M240.245 0v263.2h-19.894V0h-39.756v263.2h-19.861V0h-39.755v280H280V0h-39.755Z" fill="#160000" />
+            <path d="M0 0v280h39.755V16.8H59.65V280h39.756V0H0Z" fill="#160000" />
+          </svg>
+          <span class="u-sr-only">Homepage</span>
+        </a>
+      </div>
+    </footer>
   </div>
 
   <div class="site-mount js-mount" aria-hidden="true"></div>

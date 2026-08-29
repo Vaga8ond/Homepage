@@ -1,0 +1,377 @@
+/* P7 CTA + foot — source.css 2394-2929 / 486-515 移植（剥 scoped hash） */
+
+.s-cta {
+  position: relative;
+  z-index: 2;
+  padding: 55rem 0 0;
+}
+@media only screen and (max-width: 1680px) { .s-cta { padding-top: 48rem; } }
+@media only screen and (max-width: 1530px) { .s-cta { padding-top: 41.25rem; } }
+@media only screen and (max-width: 1280px) { .s-cta { padding-top: 34.375rem; } }
+@media only screen and (max-width: 987px)  { .s-cta { padding-top: 36rem; } }
+@media only screen and (max-width: 767px)  { .s-cta { padding-top: 30rem; } }
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) { .s-cta { padding-top: 21.6rem; } }
+
+.s-cta .s__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  height: calc(100vh - 8rem - 2px);
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .s-cta .s__inner { height: calc(100vh - 4.375rem); }
+}
+
+/* ── GO 黑圆按钮 ─────────────────────────────────── */
+.s-cta .s__button {
+  position: relative;
+  z-index: 1;
+  width: 6rem;
+  height: 6rem;
+  cursor: pointer;
+  color: var(--color-primary);
+  font: 700 3.75rem/6.85rem var(--font-family-bigger);
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-indent: 0.075em;
+  text-transform: uppercase;
+}
+.s-cta .s__button__inner {
+  width: 100%;
+  height: 100%;
+  background: var(--color-secondary);
+  border-radius: 999rem;
+  transition: scale 1s cubic-bezier(0.23, 1, 0.32, 1) 0.2s;
+  will-change: scale;
+}
+.s-cta .s__button__text {
+  transition: scale 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.2s;
+  will-change: scale;
+}
+.s-cta .s__hover.is-active .s__button .s__button__inner {
+  scale: 1.5;
+  transition: scale 0.6s cubic-bezier(0.755, 0.05, 0.855, 0.06) 0s;
+}
+.s-cta .s__hover.is-active .s__button .s__button__text {
+  animation-play-state: paused;
+  scale: 2;
+  transition: scale 0.6s cubic-bezier(0.55, 0.055, 0.675, 0.19) 0s;
+}
+
+/* ── Lets Rock 大圆（clip 圆展开 + 双色边框过渡）──── */
+.s-cta .s__cta {
+  --size: 64rem;
+  position: absolute;
+  top: calc(50% - var(--size) / 2);
+  left: calc(50% - var(--size) / 2);
+  z-index: 2;
+  width: var(--size);
+  height: var(--size);
+  background: var(--color-secondary);
+  border-radius: 999rem;
+  clip-path: circle(0 at 50% 50%);
+  overflow: hidden;
+  color: var(--color-primary);
+  font: 700 calc(var(--size) * 0.3743) / 1 var(--font-family-bigger);
+  text-align: center;
+  text-transform: uppercase;
+  transition: clip-path 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+  will-change: clip-path;
+  pointer-events: none;
+}
+.s-cta .s__cta::before,
+.s-cta .s__cta::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  border-radius: 999rem;
+  transition: border-width 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+  will-change: border-width;
+  content: "";
+  pointer-events: none;
+}
+.s-cta .s__cta::before { border: calc(var(--size) * 0.5) solid var(--color-primary); }
+.s-cta .s__cta::after  { border: calc(var(--size) * 0.5) solid var(--color-secondary); }
+
+/* ── email 链接 ──────────────────────────────────── */
+.s-cta .s__cta__link {
+  position: absolute;
+  top: calc(50% + var(--size) * 0.36);
+  left: 50%;
+  z-index: 3;
+  display: block;
+  padding: 1em 1em 1em 2em;
+  background: var(--color-secondary);
+  opacity: 0;
+  transform: translate3d(-50%, 1em, 0);
+  color: var(--color-primary);
+  font: 700 14px/1 var(--font-family-fraktion);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0s linear 0.3s, opacity 0s linear 0.3s;
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .s-cta .s__cta__link { top: calc(50% + var(--size) * 0.28); padding: 1em; font-size: 13px; }
+}
+.s-cta .s__cta__link::before {
+  position: absolute;
+  top: calc(50% - 3px);
+  left: 0.6em;
+  border-top: 3px solid transparent;
+  border-left: 6px solid currentcolor;
+  border-bottom: 3px solid transparent;
+  content: "";
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .s-cta .s__cta__link::before { display: none; }
+}
+/* 巨大透明区保 hover（鼠标滑向链接不丢失 is-active）*/
+.s-cta .s__cta__link::after {
+  position: absolute;
+  top: calc(50% - 499rem);
+  left: calc(50% - 499rem);
+  width: 999rem;
+  height: 999rem;
+  background: transparent;
+  content: "";
+}
+
+/* ── 老虎机两行字：±52% 上下滑动 + slice 轮换 ─────── */
+.s-cta .s__cta__line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  translate: -50% -50%;
+  scale: 0.5;
+  transition: scale 0.6s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  will-change: scale;
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .s-cta .s__cta__line { top: 45%; }
+}
+.s-cta .s__cta__line--top {
+  clip-path: inset(-100% 0 calc(50% + 0.01em) 0);
+}
+.s-cta .s__cta__line--top .s__cta__char__slice {
+  --toggle-delay: calc(var(--delay) + var(--offset) + 0.45s);
+}
+.s-cta .s__cta__line--top .s__cta__char__slice:nth-child(2) { clip-path: inset(0 0 calc(100% - 0.03em) 0); }
+.s-cta .s__cta__line--top .s__cta__char__slice:nth-child(3) { clip-path: inset(0 0 calc(100% - 0.06em) 0); }
+.s-cta .s__cta__line--top .s__cta__char__slice:nth-child(4) { clip-path: inset(0 0 calc(100% - 0.09em) 0); }
+.s-cta .s__cta__line--bottom {
+  clip-path: inset(calc(50% + 0.01em) 0 -100% 0);
+  letter-spacing: 0.014em;
+}
+.s-cta .s__cta__line--bottom .s__cta__char__slice {
+  --toggle-delay: calc(var(--delay) + var(--offset) + 1.45s);
+}
+.s-cta .s__cta__line--bottom .s__cta__char__slice:nth-child(2) { clip-path: inset(calc(100% - 0.03em) 0 0 0); }
+.s-cta .s__cta__line--bottom .s__cta__char__slice:nth-child(3) { clip-path: inset(calc(100% - 0.06em) 0 0 0); }
+.s-cta .s__cta__line--bottom .s__cta__char__slice:nth-child(4) { clip-path: inset(calc(100% - 0.09em) 0 0 0); }
+
+.s-cta .s__cta__text {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  height: 0.8em;
+}
+.s-cta .s__cta__char { position: relative; height: 100%; }
+.s-cta .s__cta__char:nth-child(1) { --delay: 0.1s; }
+.s-cta .s__cta__char:nth-child(2) { --delay: 0.2s; }
+.s-cta .s__cta__char:nth-child(3) { --delay: 0.3s; }
+.s-cta .s__cta__char:nth-child(4) { --delay: 0.4s; }
+.s-cta .s__cta__char__slice {
+  --offset: 0s;
+  --move-delay: calc(var(--delay) + var(--offset));
+  position: relative;
+  display: block;
+  height: 100%;
+  animation: s-cta-char-up-down 2s infinite var(--move-delay);
+  will-change: transform;
+}
+.s-cta .s__cta__char__slice:not(:first-child) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation:
+    s-cta-char-up-down 2s infinite var(--move-delay),
+    s-cta-char-toggle 2s linear infinite var(--toggle-delay);
+}
+.s-cta .s__cta__char__slice:nth-child(2) { --offset: calc(0.02s + 0.12s); }
+.s-cta .s__cta__char__slice:nth-child(3) { --offset: calc(0.02s + 0.08s); }
+.s-cta .s__cta__char__slice:nth-child(4) { --offset: calc(0.02s + 0.04s); }
+.s-cta .s__cta .sup { font-size: 0.5em; vertical-align: top; }
+
+@keyframes s-cta-char-up-down {
+  0%   { transform: translateZ(0); animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); }
+  25%  { transform: translate3d(0, -52%, 0); animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1); }
+  75%  { transform: translate3d(0, 52%, 0); animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19); }
+  to   { transform: translateZ(0); }
+}
+@keyframes s-cta-char-toggle {
+  0%     { opacity: 1; }
+  50%    { opacity: 1; }
+  50.01% { opacity: 0; }
+  to     { opacity: 0; }
+}
+
+/* ── 圆内点阵 + 浮动星 ───────────────────────────── */
+.s-cta .s__cta .a-dots {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  scale: 1.1;
+  transition: scale 0.8s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  will-change: scale;
+}
+.s-cta .s__cta .a-dots::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, var(--color-secondary) 3px, var(--color-secondary) 100%) center / 48px 48px repeat,
+    repeating-linear-gradient(90deg, var(--color-primary), var(--color-primary) 2px, transparent 3px, transparent 48px) center / 48px 48px repeat;
+  transform: translate3d(-50%, -50%, 0) scale(0.5);
+  content: "";
+}
+@keyframes s-cta-star-float {
+  0%  { transform: translateZ(0); }
+  50% { transform: translate3d(0, -15%, 0) scale(0.5); }
+  to  { transform: translateZ(0); }
+}
+.s-cta .s__cta__stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  scale: 1.25;
+  transition: scale 0.8s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  will-change: scale;
+}
+.s-cta .s__cta__star {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.15em;
+  height: auto;
+  fill: var(--color-primary);
+  animation: s-cta-star-float 10s infinite cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  will-change: transform;
+}
+.s-cta .s__cta__star:nth-child(1) { top: 12%; left: 25%; animation-duration: 8s; }
+.s-cta .s__cta__star:nth-child(2) { top: 33%; left: 85%; width: 0.1em; animation-duration: 9s; }
+@media only screen and (max-width: 767px) { .s-cta .s__cta__star:nth-child(2) { width: 0.15em; } }
+.s-cta .s__cta__star:nth-child(3) { top: 60%; left: 11%; width: 0.1em; animation-duration: 7s; }
+@media only screen and (max-width: 767px) { .s-cta .s__cta__star:nth-child(3) { width: 0.15em; } }
+.s-cta .s__cta__star:nth-child(4) { top: 83%; left: 74%; width: 0.15em; }
+@media only screen and (max-width: 987px) { .s-cta .s__cta__star:nth-child(4) { top: 79%; left: 78%; } }
+
+/* ── is-active 展开态 ────────────────────────────── */
+.s-cta .s__hover.is-active .s__cta {
+  clip-path: circle(50% at 50% 50%);
+  transition: clip-path 1s cubic-bezier(1, 0, 0, 1) 0.2s;
+  pointer-events: auto;
+}
+.s-cta .s__hover.is-active .s__cta::before {
+  border-width: 1rem;
+  transition: border-width 1.1s cubic-bezier(1, 0, 0, 1) 0.2s;
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .s-cta .s__hover.is-active .s__cta::before { border-width: 0.5rem; }
+}
+.s-cta .s__hover.is-active .s__cta::after {
+  border-width: 1px;
+  transition: border-width 1.005s cubic-bezier(1, 0, 0, 1) 0.2s;
+}
+.s-cta .s__hover.is-active .s__cta .s__cta__stars {
+  scale: 1;
+  transition: scale 2s cubic-bezier(0.23, 1, 0.32, 1) 0.4s;
+}
+.s-cta .s__hover.is-active .s__cta .s__cta__line {
+  scale: 1;
+  transition: scale 1.8s cubic-bezier(0.23, 1, 0.32, 1) 0.6s;
+}
+.s-cta .s__hover.is-active .s__cta .s__cta__link {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0);
+  transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1) 1s, opacity 0.3s cubic-bezier(0.19, 1, 0.22, 1) 1s;
+}
+.s-cta .s__hover.is-active .s__cta .a-dots {
+  scale: 1;
+  transition: scale 1.8s cubic-bezier(0.23, 1, 0.32, 1) 0.6s;
+}
+
+/* ── 网格 svg ────────────────────────────────────── */
+.s-cta .s__grid {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  z-index: 1;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+}
+.s-cta .s__grid__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.s-cta .s__grid__path {
+  fill: none;
+  stroke: var(--color-secondary);
+  stroke-width: 1px;
+}
+.s-cta.is-out-of-view .s__hover { display: none; }
+
+/* ── reduced：静态网格，关掉所有动画 ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .s-cta .s__cta__char__slice,
+  .s-cta .s__cta__star { animation: none; }
+}
+
+/* ── foot（source.css 486-515）───────────────────── */
+.site-foot {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-secondary);
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .site-foot { padding: 1rem; }
+}
+.site-foot__logo svg {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+}
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+  .site-foot__logo svg { width: 1.875rem; height: 1.875rem; }
+}
