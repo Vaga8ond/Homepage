@@ -93,6 +93,8 @@ export class App {
     const h = window.innerHeight;
     const hChanged = this.windowHeight !== undefined && this.windowHeight !== h;
     this.windowHeight = h;
+    (window as any).safeWidth = w;
+    (window as any).safeHeight = h;
     this.setScrollProgress();
     $.emit('resize', wChanged, hChanged);
   }
