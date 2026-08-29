@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { $, ticker } from './core';
+import { $, ticker, REDUCED } from './core';
 
 // 66 条彩蛋消息 — source.js:4349 全量 verbatim
 const MESSAGES = ["Preparing for inevitable debugging", "Compiling designer dreams…into developer nightmares", "Please wait while I overthink this", "Optimizing… but nothing’s perfect", "Configuring the next minor inconvenience", "Fetching assets… contemplating the futility of it all", "Re-routing your expectations… expect delays", "Trying to animate enthusiasm… it’s not going well", "Stuck in an infinite loop", "Loading… still pointless", "Simulating progress… sort of", "This will probably break soon", "Simulating something useful", "Progress bar full of lies", "Finding meaning in the code", "Calculating failure probabilities", "Please wait… indefinitely", "Loading… almost there!", "Animating pixels with love", "Integrating magic and code", "Optimizing creativity… stand by", "Design and code handshake", "Fetching creativity… almost done!", "Preparing awesomeness", "Simulating brilliance… probably", "Everything is under control", "Loading coolness… almost ready", "Calibrating designer dreams", "Fusing design and animation", "Running creativity protocols", "Crafting magic… please wait", "Making things pretty… hold on", "Loading… this might take a bit", "Animating pixels… somewhat precisely", "Integrating code and reality", "Halfway done… maybe", "Optimizing… cautiously hopeful", "Design meets code… fingers crossed", "Fetching some interesting stuff", "Preparing… slowly but surely", "Aligning pixels… carefully", "Calibrating… what exactly? Good question", "Waiting… patience is key", "Simulating… something, probably", "Loading… feel free to blink", "Running some clever algorithms", "Almost there… give or take", "Integrating… like a pro", "Crafting… without breaking anything", "Adjusting fonts… nearly invisible", "Piecing it together… stay tuned", "Loading… nothing to see yet", "Running final checks… hopefully", "Almost ready… trust me", "Building… it’s getting there", "Loading… but why rush?", "Please wait… or don’t, whatever", "Initializing… prepare for bugs", "Optimizing… but who cares?", "Deploying… probably not broken", "Making things work… hopefully", "Running… but not too fast", "Testing patience… stay calm", "Initializing… no promises", "Loading… but who’s counting?", "Loading… could be worse"];
@@ -35,6 +35,11 @@ export class Head {
 
   // source.js:4373 — 时序 verbatim：el 亮→t1 整条滑入→t1.5 logo/菜单项级联→canWrite
   private intro() {
+    if (REDUCED) {
+      gsap.set(this.el, { opacity: 1 });
+      this.canWrite = true;
+      return;
+    }
     const logo = this.el.querySelector('.js-logo');
     const menuItems = this.el.querySelectorAll('.js-menu-item');
     const targets = [logo, ...menuItems].filter(Boolean);

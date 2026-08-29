@@ -20,10 +20,13 @@ export class Hero {
     this.splitWords();
     if (REDUCED) {
       this.isWaiting = false;
+      gsap.set(this.el, { opacity: 1 }); // 初始 CSS 藏匿（等 intro 揭示），reduced 直接亮
       gsap.set(this.el.querySelector('.js-content') as HTMLElement, {
         clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
         opacity: 1,
       });
+      // 字符静止态在窗口上方（等 intro 坠落），reduced 直接归位
+      gsap.set(this.el.querySelectorAll('.char__inner'), { y: '0%' });
       return;
     }
     document.addEventListener('intro', () => this.intro(), { once: true });

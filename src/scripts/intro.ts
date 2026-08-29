@@ -1,4 +1,4 @@
-import { $ } from './core';
+import { $, REDUCED } from './core';
 import { gsap } from 'gsap';
 
 // site-intro 开场时间轴 — source.js:4272-4316 verbatim
@@ -10,6 +10,15 @@ export class Intro {
     const el = document.querySelector('.js-intro') as HTMLElement;
     const mount = document.querySelector('.js-mount') as HTMLElement;
     if (!el) return;
+    // reduced：跳过 5s 时间轴，直接点亮进站（源站无处理，这是我们的增强）
+    if (REDUCED) {
+      mount.style.opacity = '1';
+      el.remove();
+      document.documentElement.classList.remove('is-scroll-blocked');
+      document.dispatchEvent(new CustomEvent('intro'));
+      setTimeout(() => $.emit('resize'), 0);
+      return;
+    }
     const v = el.querySelectorAll('.js-logo-line-v');
     const h = el.querySelectorAll('.js-logo-line-h');
     const bt = el.querySelector('.js-border-top');

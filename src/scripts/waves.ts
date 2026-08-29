@@ -29,7 +29,13 @@ export class Waves extends HTMLElement {
     document.fonts?.ready.then(() => {
       if (this.clientHeight !== this.bounding.height) { this.setSize(); this.setLines(); }
     });
-    if (REDUCED) { this.revealed = true; this.drawLines(); }
+    if (REDUCED) {
+      this.revealed = true;
+      // setLines 已在上方同步跑过（当时 revealed=false，offset=1 藏线）——补揭示+画一帧静态噪声场
+      this.paths.forEach(p => { p.style.strokeDashoffset = '0'; });
+      this.movePoints(0);
+      this.drawLines();
+    }
   }
 
   private updateMousePosition(x: number, y: number) {
