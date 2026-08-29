@@ -47,7 +47,7 @@ export class Hero {
     tl.fromTo(lines, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 3, ease: 'expo.out', stagger: { amount: .5, from: 'edges', ease: 'power3.inOut' } }, .5);
     tl.call(() => waves?.dispatchEvent(new CustomEvent('introend')), null, '-=1');
     tl.fromTo(content, { clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)' }, { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', duration: 1, ease: 'expo.inOut' }, 1);
-    tl.fromTo(inners, { y: '-200%' }, { y: '-100%', duration: 2, ease: 'expo.inOut', stagger: .02 }, .45);
+    tl.fromTo(inners, { y: '-100%' }, { y: '0%', duration: 2, ease: 'expo.inOut', stagger: .02 }, .45);
     tl.from(seps, { y: (i: number) => (i % 2 === 0 ? '-100%' : '100%'), duration: 1.5, ease: 'expo.inOut' }, .75);
     tl.from(star, { rotate: 90, duration: 2, ease: 'expo.out' }, 1.5);
     tl.call(() => { this.isWaiting = false; });
