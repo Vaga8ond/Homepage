@@ -5,13 +5,14 @@
    机制：滚动进度驱动遮罩缩放/卡片 progress 1→-1 逐张飞过/字母幽灵拖尾
    ============================================================ */
 
-/* 项目卡：absolute 飞行件，--progress/-1..1 由 work.ts 写入 */
+/* 项目卡：relative 块，由 .s__scene__work 定位飞行，--progress/-1..1 由 work.ts 写入 */
 a-work {
-    position: absolute;
-    inset: -40%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block;
+    margin: 0;
+    padding: .5rem .5rem 0;
     background: var(--color-secondary);
     content-visibility: hidden;
     transform-style: preserve-3d;
@@ -24,20 +25,24 @@ a-work a {
 }
 
 a-work .a__inner {
-    flex: 0 0 auto;
-    width: min(50vw, 110rem)
+    display: block;
+    margin: 0;
+    padding: 0
 }
 
 a-work .a__video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    aspect-ratio: 16 / 9
+    display: block;
+    width: auto;
+    max-width: 50vw;
+    height: auto;
+    max-height: 50vh
 }
 
-/* 占位块：真实项目视频就位前，用斜纹影子块保持 16/9 版式 */
+/* 占位块：真实项目视频就位前，套用源站 video 尺寸逻辑 + 斜纹影子 */
 a-work .a__placeholder {
-    width: 100%;
+    display: block;
+    width: auto;
+    max-width: 50vw;
     height: auto;
     aspect-ratio: 16 / 9;
     background: repeating-linear-gradient(-45deg, var(--color-shadow), var(--color-shadow) 2px, transparent 2px, transparent 14px) var(--color-shadow)
@@ -45,10 +50,14 @@ a-work .a__placeholder {
 
 a-work .a__caption {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-small);
-    font: var(--font-fraktion-small);
+    padding: .5rem;
+    color: var(--color-primary);
+    font: 700 11px/1 var(--font-family-fraktion);
+    letter-spacing: .15em;
+    text-align: right;
     text-transform: uppercase
 }
 
@@ -103,14 +112,14 @@ a-work.is-inview {
     height: 100%
 }
 
-.s-work .s__mask__path-outer {
+.s-work .s__mask__path--outer {
     fill: var(--color-primary);
     fill-rule: evenodd;
     stroke: var(--color-secondary);
     stroke-width: 1px
 }
 
-.s-work .s__mask__path-inner {
+.s-work .s__mask__path--inner {
     fill: var(--color-primary);
     fill-rule: evenodd;
     stroke: var(--color-secondary);
@@ -119,7 +128,7 @@ a-work.is-inview {
     will-change: transform
 }
 
-.s-work .s__mask__path-lines {
+.s-work .s__mask__path--lines {
     fill: none;
     stroke: var(--color-secondary);
     stroke-width: 1px

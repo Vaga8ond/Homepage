@@ -1,6 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
+const workSlots = [
+  'f853d19b', '843928c0', '2ba3dcb6', 'c4f79a35', '0ec5e0ac',
+  'b0dc0e46', '6f8c8fd4', '29c2cf12', '77bea49a', 'e9fb74ba',
+].map((id, i) => ({ id, title: `Project ${String(i + 1).padStart(2, '0')}` }));
+
+const frames = [
+  { title: 'Generative art poster concept', w: 1024, h: 1024 },
+  { title: 'Generative art poster concept', w: 760, h: 1024 },
+  { title: 'Generative art poster concept', w: 802, h: 1024 },
+  { title: 'My first FOTD on FWA ♥ (2012)', w: 768, h: 1024 },
+  { title: 'Young me discovering the beauty of <s>Grand Canyon</s> Tetris (1997)', w: 600, h: 600 },
+  { title: 'Me abusing of remote work (2005)', w: 768, h: 1024 },
+  { title: 'Roaaaar!', w: 576, h: 1024 },
+  { title: 'Early age (2006) desk setup', w: 640, h: 480 },
+  { title: '2016 desk setup', w: 1024, h: 576 },
+  { title: '2020 desk setup', w: 1024, h: 576 },
+  { title: 'Waaark Creative Robots', w: 1440, h: 1440 },
+  { title: '2011 portfolio', w: 1024, h: 768 },
+  { title: '2014 portfolio (767)', w: 1024, h: 768 },
+  { title: '2017 portfolio (never released)', w: 1024, h: 768 },
+  { title: '2021 portfolio', w: 1024, h: 768 },
+  { title: 'Legos ♥', w: 768, h: 1024 },
+];
+
 // a-separator 二进制段（源站 01-hero.html 结构：码组+条纹，blank 恒在第 8 位；SSR 静态生成）
 const sep = (groups: number) => `<span class="a__triangle"></span><span class="a__binaries">${
   Array.from({ length: groups }, () => {
@@ -182,6 +206,95 @@ const sep = (groups: number) => `<span class="a__triangle"></span><span class="a
         <path class="js-path" d=""></path>
       </svg>
       <canvas class="s__canvas js-canvas"></canvas>
+    </section>
+
+    <a-separator class="s__separator style--primary js-separator" data-intersect set:html={sep(6)}></a-separator>
+
+    <section class="s-work" data-intersect>
+      <div class="s__outer">
+        <div class="s__inner js-container">
+          <div class="s__title">
+            <div class="s__title__inner js-title">
+              <div class="s__title__letter js-letter">W</div>
+              <div class="s__title__letter js-letter">O</div>
+              <div class="s__title__letter js-letter">R</div>
+              <div class="s__title__letter js-letter">K</div>
+            </div>
+          </div>
+          <div class="s__scene js-scene">
+            {workSlots.map((slot, i) => (
+              <a-work class="s__scene__work s__scene__work--video js-work" progress="1" data-id={slot.id}>
+                <div class="a__inner">
+                  <a href="#work" aria-label={slot.title}>
+                    <div class="a__placeholder" />
+                    <div class="a__caption">
+                      <span class="a__caption__text" set:html={slot.title} />
+                      <span class="a__caption__key">#{String(i + 1).padStart(2, '0')}/34</span>
+                    </div>
+                  </a>
+                </div>
+              </a-work>
+            ))}
+            <canvas class="s__canvas js-canvas"></canvas>
+          </div>
+        </div>
+        <div class="s__mask-outer">
+          <div class="s__mask js-mask">
+            <svg class="s__mask__svg js-mask-svg" aria-hidden="true">
+              <path class="s__mask__path--inner js-mask-path-inner" fill="var(--color-primary)" d="" />
+              <path class="s__mask__path--outer js-mask-path-outer" fill="var(--color-primary)" d="" />
+              <path class="s__mask__path--lines js-mask-path-lines" fill="none" d="" />
+            </svg>
+          </div>
+        </div>
+        <div class="s__ruler js-ruler"></div>
+      </div>
+    </section>
+
+    <section class="s-my-way" data-intersect>
+      <svg class="s__smiley js-smiley" viewBox="0 0 77.8 77.8" aria-hidden="true">
+        <circle cx="38.9" cy="38.9" r="36.9" />
+        <path d="M26 30 q2.5 -4 5 0 M46.8 30 q2.5 -4 5 0 M26 46 q6.5 8 12.9 8 q6.4 0 12.9 -8" />
+      </svg>
+      <div class="s__objects js-objects">
+        {frames.map((f) => (
+          <div class="a-object a-object--frame">
+            <figure class="a__inner">
+              <div class="a__placeholder" style={`--ar:${f.w} / ${f.h}`} />
+              <figcaption class="a__caption">
+                <span class="a__caption__text" set:html={f.title} />
+              </figcaption>
+            </figure>
+            <div class="a__back" />
+            <div class="a__side a__side--horizontal" />
+            <div class="a__side a__side--vertical" />
+          </div>
+        ))}
+        {Array.from({ length: 10 }).map(() => (
+          <div class="a-object a-object--star">
+            <div class="a__side a__side--front" />
+            <div class="a__side a__side--back" />
+            <div class="a__side a__side--top-left" />
+            <div class="a__side a__side--top-right" />
+            <div class="a__side a__side--bottom-left" />
+            <div class="a__side a__side--bottom-right" />
+          </div>
+        ))}
+        <div class="s__ruler">my way</div>
+      </div>
+      <div class="s__catcher js-catcher">
+        <div class="s__catcher__distorted-wrapper">
+          <div class="s__catcher__distorted">
+            <span class="s__catcher__text--distorted" set:html="Coding <br> my way <br> since <br> 1987" />
+          </div>
+        </div>
+        <div class="s__catcher__normal-wrapper">
+          <span class="s__catcher__text--normal" set:html="Coding <br> my way <br> since <br> 1987" />
+        </div>
+      </div>
+      <svg class="s__svg js-svg" aria-hidden="true">
+        <path class="s__svg__circular-path js-lines-circular-path" d="" />
+      </svg>
     </section>
   </div>
 

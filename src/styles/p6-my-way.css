@@ -1,0 +1,232 @@
+/* P6 my-way — source.css 1863–2380 移植（剥 scoped hash），变量契约为 --scroll-progress / --distortion */
+
+.s-my-way {
+  --padding: 40rem;
+  position: relative;
+  z-index: 1;
+  padding: calc(var(--padding) * 0.75) var(--padding) calc(var(--padding) * 1.5);
+  clip-path: inset(-100vh 0 calc(var(--padding) * -1.375));
+  background: var(--color-primary);
+}
+
+@media (max-width: 1680px) { .s-my-way { --padding: 35rem; } }
+@media (max-width: 1530px) { .s-my-way { --padding: 30rem; } }
+@media (max-width: 1280px) { .s-my-way { --padding: 25rem; } }
+@media (max-width: 987px)  { .s-my-way { --padding: 30rem; } }
+@media (max-width: 767px)  { .s-my-way { --padding: 25rem; } }
+@media (max-width: 576px)  { .s-my-way { --padding: 18rem; } }
+
+/* ── 笑脸 ─────────────────────────────────────────── */
+.s-my-way .s__smiley {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5.625rem;
+  height: 5.625rem;
+  margin: -2.8125rem 0 0 -2.8125rem;
+  z-index: 2;
+  animation: s-my-way-smiley 10s linear infinite;
+}
+.s-my-way .s__smiley circle { fill: var(--color-secondary); }
+.s-my-way .s__smiley path { fill: none; stroke: var(--color-secondary); stroke-width: 3; }
+@keyframes s-my-way-smiley { to { transform: rotate(360deg); } }
+
+/* ── 物件层 ───────────────────────────────────────── */
+.s-my-way .s__objects {
+  position: relative;
+  height: 160vh;
+  margin: -30vh 0;
+  perspective: 1000px;
+  perspective-origin: 50% calc(50% - var(--padding) * 0.4);
+}
+@media (max-width: 987px) {
+  .s-my-way .s__objects { perspective-origin: 50% calc(50% - var(--padding) * 0.275); }
+}
+
+.s-my-way .s__ruler {
+  position: absolute;
+  bottom: 0;
+  left: calc(var(--padding) * -0.25);
+  width: calc(100% + var(--padding) * 1.5);
+  height: calc(var(--padding) * 0.4);
+  border: 1px solid var(--color-shadow);
+  border-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-fraktion);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+/* ── 3D 物件（frame / star）────────────────────────── */
+.s-my-way .a-object {
+  --s: 0;
+  --x: 50vw;
+  --y: 50vh;
+  --z: -1000vw;
+  --rx: 0;
+  --ry: 0;
+  --rz: 0;
+  --size: 1;
+  --depth: 500px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), var(--z))
+    rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg)) rotateZ(calc(var(--rz) * 1deg))
+    scale(var(--s));
+}
+
+.a-object--frame { width: 500px; }
+@media (max-width: 767px) { .a-object--frame { width: 300px; } }
+
+.a-object .a__inner {
+  position: relative;
+  background: var(--color-shadow);
+  padding: 1.5rem;
+  transform-style: preserve-3d;
+}
+.a-object .a__placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--ar, 4 / 3);
+  background: repeating-linear-gradient(45deg, var(--color-shadow) 0 12px, var(--color-primary) 12px 24px);
+}
+.a-object .a__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  font-family: var(--font-family-fraktion);
+  font-size: 0.75rem;
+  color: var(--color-secondary);
+}
+.a-object .a__caption s { text-decoration: line-through; }
+
+/* 背板 + 盒身侧板（源站 translateZ(--depth*-1+1px)）*/
+.a-object .a__back {
+  position: absolute;
+  inset: -1px;
+  background: var(--color-shadow);
+  transform: translateZ(calc(var(--depth) * -1 + 1px)) rotateY(180deg);
+}
+.a-object .a__side--horizontal {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 1rem;
+  background: var(--color-shadow);
+  transform-origin: top;
+  transform: rotateX(-90deg);
+}
+.a-object .a__side--vertical {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 1rem;
+  height: 100%;
+  background: var(--color-shadow);
+  transform-origin: left;
+  transform: rotateY(90deg);
+}
+
+/* 星星：前后贴图 + 4 折角 */
+.a-object--star { left: 65%; width: calc(var(--size) * 400px); height: calc(var(--size) * 400px); }
+@media (max-width: 767px) { .a-object--star { width: calc(var(--size) * 200px); height: calc(var(--size) * 200px); } }
+.a-object--star .a__side {
+  position: absolute;
+  inset: 0;
+  background: url('/images/asset-star.svg') center / contain no-repeat;
+  backface-visibility: hidden;
+}
+.a-object--star .a__side--back { transform: rotateY(180deg); }
+.a-object--star .a__side--top-left { transform: rotateX(81deg); transform-origin: top; }
+.a-object--star .a__side--top-right { transform: rotateY(81deg); transform-origin: right; }
+.a-object--star .a__side--bottom-left { transform: rotateY(-81deg); transform-origin: left; }
+.a-object--star .a__side--bottom-right { transform: rotateX(-81deg); transform-origin: bottom; }
+
+/* 消失动画：无 sprite-vanish.png 资产，用缩放淡出近似（源站 3000% steps(29) 条纹 dissolve） */
+.a-object.is-vanishing { animation: a-object-vanish 0.75s steps(29) forwards; }
+.a-object--frame.is-vanishing { animation-delay: 0.105s; }
+@keyframes a-object-vanish {
+  60% { opacity: 1; }
+  to { opacity: 0; transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), var(--z)) rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg)) scale(calc(var(--s) * 0.2)); }
+}
+
+/* ── Catcher 错切文字 ─────────────────────────────── */
+.s-my-way .s__catcher {
+  --distortion: 0;
+  --amplitude: 100%;
+  --offset: 0%;
+  position: relative;
+  z-index: 3;
+  height: calc(var(--padding) * 1.05 + 2.8125rem);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-family-bigger, var(--font-display, sans-serif));
+  font-size: calc(var(--padding) * 1.2);
+  line-height: 0.82;
+  perspective: calc(var(--distortion) * 4000px);
+}
+@media (max-width: 987px) {
+  .s-my-way .s__catcher { font-size: calc(var(--padding) * 0.75 * 1.2); --amplitude: 75%; --offset: 27.5%; }
+}
+
+.s-my-way .s__catcher__distorted-wrapper {
+  position: relative;
+  height: calc(var(--padding) * 1.5);
+  overflow: hidden;
+  perspective: calc(var(--distortion) * 3500px);
+}
+@media (max-width: 987px) {
+  .s-my-way .s__catcher__distorted-wrapper { perspective: calc(var(--distortion) * 3000px); }
+}
+.s-my-way .s__catcher__distorted {
+  position: absolute;
+  left: 0;
+  width: 300%;
+  transform: translateX(-50%);
+  transform-style: preserve-3d;
+}
+.s-my-way .s__catcher__text--distorted,
+.s-my-way .s__catcher__text--normal {
+  display: block;
+  transform: matrix3d(1, 0, 0, 0, 0, 1, var(--distortion), 0, 0, 0, 1, 0, 0, 0, 0, 1)
+    translateY(calc(var(--scroll-progress, 0) * var(--amplitude) - var(--offset)));
+}
+.s-my-way .s__catcher__normal-wrapper {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  width: 100%;
+  height: calc(100% + 100vh);
+  overflow: hidden;
+}
+.s-my-way .s__catcher__text--normal {
+  transform: translateY(calc(var(--scroll-progress, 0) * var(--amplitude) - 100% - var(--offset)));
+}
+
+/* ── svg 放射线 ───────────────────────────────────── */
+.s-my-way .s__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  fill: none;
+  stroke: var(--color-shadow);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* ── reduced 降级 ─────────────────────────────────── */
+.s-my-way.is-reduced .s__objects { margin: 0; height: auto; min-height: 40vh; }
+.s-my-way.is-reduced .a-object { position: relative; display: inline-block; transform: none; opacity: 0.25; margin: 2rem; }
+.s-my-way.is-reduced .s__catcher__text--distorted,
+.s-my-way.is-reduced .s__catcher__text--normal { transform: none; }

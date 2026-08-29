@@ -32,11 +32,12 @@ customElements.define('a-work', AWork);
 
 type Ghost = { el: HTMLSpanElement; x: number; y: number; z: number; i: number; p: number; ap: number; mx: number; my: number };
 
-/* s-work：固定画板 + 圆孔遮罩展开 + 卡片流 + WORK 幽灵字母 + 点阵画布。
-   老项目机制移植；gsap ScrollTrigger 时间轴换算为手写滚动分段驱动
-   （对应原 tl：intro 0.75 + 卡片 stagger .25/dur 1 + 结尾 1 段回退，总长 4）。 */
-const D = 4;
+/* s-work：fixed 画板 + 胶囊遮罩展开 + 卡片流 + WORK 幽灵字母 + 点阵画布。
+   源站机制（source.js 5349–5721）；gsap ScrollTrigger 时间轴换算为手写滚动分段驱动
+  （对应原 tl：intro 0–0.75 + 卡片 dur .5 stagger .25 + 尾部 -=1 回退，总长 3.5）。 */
+const D = 3.5;
 const CARD_START = (i: number) => .75 + i * .25;
+const CARD_DUR = .5;
 const clamp01 = (k: number) => Math.min(1, Math.max(0, k));
 const seg = (t: number, a: number, b: number) => clamp01((t - a) / (b - a));
 const easeIn4 = (k: number) => k * k * k * k;
@@ -134,9 +135,9 @@ export class Work {
     const m = this.mask;
     const w = m.el.clientWidth, h = m.el.clientHeight;
     m.width = w; m.height = h;
-    m.svg.setAttribute('width', w + 'px');
-    m.svg.setAttribute('height', h + 'px');
-    const sectionRect = this.container.getBoundingClientRect();
+    m.svg.style.width = w + 'px';
+    m.svg.style.height = h + 'px';
+    const sectionRect = this.el.getBoundingClientRect();
     const r = this.ruler.getBoundingClientRect();
     const rw = r.width, rh = r.height;
     const left = r.left - sectionRect.left;
@@ -178,7 +179,7 @@ export class Work {
       letter.top = rect.top - this.bounding.top;
       letter.left = rect.left;
       letter.freq = 1 + Math.random();
-      const density = window.safeWidth > 767 ? .75 : .5;
+      const density = window.safeWidth > 767 ? .42 : .3; // 源站 .75：按 Anton 窄字宽重校准（目标每列 ≈7 ghost，同源站 Bigger Display 密度）
       letter.total = Math.round(this.bounding.width / letter.width * density) + 2;
       for (let i = 0; i < letter.total; i++) {
         const span = document.createElement('span');
@@ -225,7 +226,7 @@ export class Work {
     this.pointsProgress = easeInOut4(seg(t, 0, .75));
     // 卡片 [.75, 4]：progress 1→-1 stagger
     this.works.forEach((w, i) => {
-      const k = easeSlow(seg(t, CARD_START(i), CARD_START(i) + 1));
+      const k = easeSlow(seg(t, CARD_START(i), CARD_START(i) + CARD_DUR));
       w.el.setAttribute('progress', String(1 - 2 * k));
     });
     // 幽灵流时间 [.75, 4]
@@ -296,7 +297,7 @@ export class Work {
     this.points.forEach((p) => {
       const x = p.x + p.dx * (1 - this.pointsProgress) * .2 + p.flowX;
       const y = p.y + p.dy * (1 - this.pointsProgress) * .2;
-      this.ctx.rect(x, y, .6, .6);
+      this.ctx.rect(x, y, .5, .5);
     });
     this.ctx.stroke();
     this.last.pointsProgress = pp;
@@ -304,16 +305,14 @@ export class Work {
   }
 
   private tick() {
-    // 遮罩视差进度（css var，退场漂移用）
+    // 遮罩视差进度（css var；源站式：顶入为负分量+底出为正分量，pin 中段 ≈ -1）
     const r = this.el.getBoundingClientRect();
     const vh = window.safeHeight;
-    const topP = Math.min(1, Math.max(0, (vh - r.top) / vh));
-    const bottomP = Math.min(1, Math.max(0, r.bottom / vh));
-    this.scrollProgress = Math.min(topP, bottomP) * 2;
+    this.scrollProgress = -clamp01((vh - r.top) / vh) + (1 - clamp01(r.bottom / vh));
     this.smoothScrollProgress += (this.scrollProgress - this.smoothScrollProgress) * .1;
     this.el.style.setProperty('--scroll-progress', String(this.smoothScrollProgress));
-    // 时间轴进度：top 过视口 25% 线 → bottom 过 75% 线（=老 ScrollTrigger start/end），scrub 平滑
-    const start = -r.top + vh * .25;
+    // 时间轴进度：top 过视口 75% 线 → bottom 过 25% 线（=老 ScrollTrigger start "top 25%" end "bottom 75%"），scrub 平滑
+    const start = vh * .75 - r.top;
     const end = r.height - vh * .5;
     const target = end > 0 ? clamp01(start / end) : 0;
     this.tlP += (target - this.tlP) * .1;
