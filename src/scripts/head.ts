@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { $, ticker, REDUCED } from './core';
+import { lenis } from './lenis';
 
 // 66 条彩蛋消息 — source.js:4349 全量 verbatim
 const MESSAGES = ["Preparing for inevitable debugging", "Compiling designer dreams…into developer nightmares", "Please wait while I overthink this", "Optimizing… but nothing’s perfect", "Configuring the next minor inconvenience", "Fetching assets… contemplating the futility of it all", "Re-routing your expectations… expect delays", "Trying to animate enthusiasm… it’s not going well", "Stuck in an infinite loop", "Loading… still pointless", "Simulating progress… sort of", "This will probably break soon", "Simulating something useful", "Progress bar full of lies", "Finding meaning in the code", "Calculating failure probabilities", "Please wait… indefinitely", "Loading… almost there!", "Animating pixels with love", "Integrating magic and code", "Optimizing creativity… stand by", "Design and code handshake", "Fetching creativity… almost done!", "Preparing awesomeness", "Simulating brilliance… probably", "Everything is under control", "Loading coolness… almost ready", "Calibrating designer dreams", "Fusing design and animation", "Running creativity protocols", "Crafting magic… please wait", "Making things pretty… hold on", "Loading… this might take a bit", "Animating pixels… somewhat precisely", "Integrating code and reality", "Halfway done… maybe", "Optimizing… cautiously hopeful", "Design meets code… fingers crossed", "Fetching some interesting stuff", "Preparing… slowly but surely", "Aligning pixels… carefully", "Calibrating… what exactly? Good question", "Waiting… patience is key", "Simulating… something, probably", "Loading… feel free to blink", "Running some clever algorithms", "Almost there… give or take", "Integrating… like a pro", "Crafting… without breaking anything", "Adjusting fonts… nearly invisible", "Piecing it together… stay tuned", "Loading… nothing to see yet", "Running final checks… hopefully", "Almost ready… trust me", "Building… it’s getting there", "Loading… but why rush?", "Please wait… or don’t, whatever", "Initializing… prepare for bugs", "Optimizing… but who cares?", "Deploying… probably not broken", "Making things work… hopefully", "Running… but not too fast", "Testing patience… stay calm", "Initializing… no promises", "Loading… but who’s counting?", "Loading… could be worse"];
@@ -77,7 +78,11 @@ export class Head {
     e.preventDefault();
     const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
     const target = href ? document.querySelector(href) : null;
-    if (target) target.scrollIntoView({ behavior: 'smooth' });
+    if (!target) return;
+    // lenis 1.1.13 scrollTo(element) 在惯性追赶期有竞态（会多滚当前 scrollY），
+    // 改传 absolute 数字绕过其 element 换算。
+    if (lenis) lenis.scrollTo(target.getBoundingClientRect().top + window.scrollY);
+    else target.scrollIntoView({ behavior: 'smooth' });
   }
 
   // source.js:4417 — 打字节奏 verbatim：,和空格 100ms /…和。400ms/普通 20ms/换行 200ms/新消息前停 2s
