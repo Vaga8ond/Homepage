@@ -58,9 +58,10 @@ export class Waves extends HTMLElement {
     this.paths = [];
     const gapX = 10, gapY = 32;
     const cols = Math.ceil((width + 200) / gapX);
-    const rows = Math.ceil((height + 30) / gapY);
+    // ponytail: anchor the last row 4px above the bottom edge (like the source) so wave lines stay glued to the box border at any viewport; top overflow gets clipped
+    const rows = Math.ceil(height / gapY) + 1;
     const offX = (width - gapX * cols) / 2;
-    const offY = (height - gapY * rows) / 2;
+    const offY = height - gapY * (rows - 1) - 4;
     for (let c = 0; c <= cols; c++) {
       const points = [];
       for (let r = 0; r <= rows; r++) {

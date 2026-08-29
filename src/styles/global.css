@@ -100,7 +100,7 @@ x-waves svg { position: absolute; top: 0; left: 0; }
 x-waves .a__line { fill: none; stroke: var(--color-secondary); stroke-width: 1.4; opacity: .55; }
 .s-hero__content { position: relative; text-align: center; width: 100%; padding: 0; clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); display: flex; flex-direction: column; align-items: stretch; }
 .s-hero__binary { width: 100%; }
-.s-hero__title { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 1vw; width: 100%; padding: 1.5rem 0; font: 400 min(13.2vw, 18.5rem)/.8 var(--font-display); letter-spacing: -.015em; text-transform: uppercase; }
+.s-hero__title { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 1vw; width: 100%; padding: 1.5rem 0; font: 400 min(12.6vw, 18.5rem)/.8 var(--font-display); letter-spacing: 0; text-transform: uppercase; }
 .s-hero__title .word { display: inline-flex; }
 .s-hero__title .char { position: relative; display: inline-block; overflow: hidden; vertical-align: top; }
 .s-hero__title .char__inner { position: relative; display: inline-block; }
@@ -113,7 +113,7 @@ x-waves .a__line { fill: none; stroke: var(--color-secondary); stroke-width: 1.4
 @keyframes char-to-left { 0% { transform: translateX(0); } 45%, 55% { transform: translateX(-65%); } 100% { transform: translateX(0); } }
 @keyframes char-to-right { 0% { transform: translateX(0); } 45%, 55% { transform: translateX(65%); } 100% { transform: translateX(0); } }
 .s-hero__row { display: none; }
-.s-hero__star { width: clamp(20px, 2.6vw, 40px); height: clamp(20px, 2.6vw, 40px); flex: none; transform-origin: 50% 50%; }
+.s-hero__star { width: clamp(20px, 2.4vw, 38px); height: clamp(20px, 2.4vw, 38px); flex: none; margin: 0 .6vw; transform-origin: 50% 50%; }
 
 /* ============ Separator (binary) ============ */
 x-separator { display: flex; flex-direction: row; align-items: center; justify-content: space-between; position: relative; width: 100%; padding: 0 1rem; height: 2.25rem; border-top: 1px solid var(--color-secondary); border-bottom: 1px solid var(--color-secondary); font: 400 8px/16px var(--font-mono); }
