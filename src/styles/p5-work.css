@@ -1,0 +1,327 @@
+/* ============================================================
+   P5: s-work — source.css 1568–1860 移植（剥离 scoped hash）
+   结构：s__outer（长滚动区）> s__inner fixed 画板（secondary 底）
+   + s__mask-outer sticky 圆孔遮罩（挖到 ruler 区）+ s__ruler
+   机制：滚动进度驱动遮罩缩放/卡片 progress 1→-1 逐张飞过/字母幽灵拖尾
+   ============================================================ */
+
+/* 项目卡：absolute 飞行件，--progress/-1..1 由 work.ts 写入 */
+a-work {
+    position: absolute;
+    inset: -40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-secondary);
+    content-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform
+}
+
+a-work a {
+    display: block;
+    text-decoration: none
+}
+
+a-work .a__inner {
+    flex: 0 0 auto;
+    width: min(50vw, 110rem)
+}
+
+a-work .a__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 16 / 9
+}
+
+/* 占位块：真实项目视频就位前，用斜纹影子块保持 16/9 版式 */
+a-work .a__placeholder {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    background: repeating-linear-gradient(-45deg, var(--color-shadow), var(--color-shadow) 2px, transparent 2px, transparent 14px) var(--color-shadow)
+}
+
+a-work .a__caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-small);
+    font: var(--font-fraktion-small);
+    text-transform: uppercase
+}
+
+a-work.is-inview {
+    content-visibility: visible
+}
+
+.s-work {
+    --height: 100lvh;
+    position: relative;
+    z-index: 2;
+    height: var(--height);
+    background: var(--color-primary)
+}
+
+.s-work:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 100%;
+    height: 1px;
+    background: var(--color-secondary);
+    content: ""
+}
+
+/* 遮罩层：sticky 覆盖视口，fill=页面底色，挖孔露出画板 */
+.s-work .s__mask-outer {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100lvh;
+    overflow: hidden;
+    pointer-events: none
+}
+
+.s-work .s__mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    will-change: scale, transform
+}
+
+.s-work .s__mask__svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%
+}
+
+.s-work .s__mask__path-outer {
+    fill: var(--color-primary);
+    fill-rule: evenodd;
+    stroke: var(--color-secondary);
+    stroke-width: 1px
+}
+
+.s-work .s__mask__path-inner {
+    fill: var(--color-primary);
+    fill-rule: evenodd;
+    stroke: var(--color-secondary);
+    stroke-width: 1px;
+    transform: translate3d(0, calc(var(--scroll-progress) * 48px), 0);
+    will-change: transform
+}
+
+.s-work .s__mask__path-lines {
+    fill: none;
+    stroke: var(--color-secondary);
+    stroke-width: 1px
+}
+
+.s-work .s__outer {
+    position: relative;
+    height: var(--height);
+    clip-path: inset(0 -1rem)
+}
+
+/* 画板：fixed 常驻视口，退场时随 --scroll-progress 上漂 */
+.s-work .s__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-secondary);
+    transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
+    color: var(--color-primary);
+    will-change: clip-path, transform
+}
+
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+    .s-work .s__inner {
+        transform: none
+    }
+}
+
+.s-work .s__ruler {
+    --width: min(16.6667%, 19.625rem);
+    position: absolute;
+    top: 10lvh;
+    left: calc(50% - var(--width) / 2);
+    width: var(--width);
+    height: 80lvh;
+    pointer-events: none
+}
+
+@media only screen and (max-width: 987px) {
+    .s-work .s__ruler {
+        --width: 33.3333%
+    }
+}
+
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+    .s-work .s__ruler {
+        --width: 50%
+    }
+}
+
+.s-work .s__title,
+.s-work .s__scene {
+    font: 700 min(18.75rem, 25lvh)/1 var(--font-family-bigger);
+    text-align: center;
+    text-transform: uppercase
+}
+
+.s-work .s__title__inner,
+.s-work .s__scene__letter {
+    line-height: .85
+}
+
+.s-work .s__title {
+    width: .7em;
+    opacity: 0;
+    word-break: break-all
+}
+
+.s-work .s__title__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: .075em 0 -.125em
+}
+
+.s-work .s__scene {
+    --shadow: var(--color-shadow);
+    --progress: .5;
+    --state: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    perspective: 40rem;
+    will-change: transform
+}
+
+/* 幽灵字母：--progress(每帧写入) 驱动横向流过，--state 展开纵深 */
+.s-work .s__scene .s__scene__letter {
+    --head: calc((var(--progress) - .5) * -2);
+    --ahead: calc(var(--head) * var(--head));
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    transform: rotateY(calc(var(--head) * -10deg * var(--state))) translate3d(calc(var(--head) * 50vw * var(--state)), calc(var(--iy) * 50% * var(--ahead) * var(--state)), 0);
+    pointer-events: none;
+    will-change: transform
+}
+
+.s-work .s__scene .s__scene__letter:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    color: var(--color-shadow);
+    opacity: min(var(--state) * 2, 1);
+    transform: scale(1.05, 1.02) translate3d(calc(var(--head) * .1rem * var(--state) * var(--state)), 0, 0);
+    transform-origin: calc(50% - var(--head) * 50%) -50%;
+    will-change: opacity, transform;
+    content: attr(data-letter)
+}
+
+/* 卡片飞行轨迹：--progress 1→-1 从右飞入左飞出，--y 上下散布，--size 大小随机 */
+.s-work .s__scene .s__scene__work {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    transform: rotateY(calc(var(--progress) * -20deg)) translate3d(calc(var(--progress) * (50vw + 100%) - 50%), calc(var(--y) * 50% - 50%), calc(var(--progress) * var(--progress) * -5rem)) scale(var(--size));
+    will-change: transform
+}
+
+@media only screen and (max-width: 987px) {
+    .s-work .s__scene .s__scene__work {
+        transform: rotateY(calc(var(--progress) * -20deg)) translate3d(calc(var(--progress) * (50vw + 100%) - 50%), calc(var(--y) * 50% - 50%), calc(var(--progress) * var(--progress) * -5rem))
+    }
+}
+
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+    .s-work .s__scene .s__scene__work {
+        transform: rotateY(calc(var(--progress) * -20deg)) translate3d(calc(var(--progress) * (50vw + 100%) - 50%), calc(var(--y) * 100% - 50%), calc(var(--progress) * var(--progress) * -5rem))
+    }
+}
+
+/* 点阵画布：透视点网格，随 animationProgress 横向流动 */
+.s-work .s__canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    transform: translate3d(0, calc(var(--scroll-progress) * -5%), 0)
+}
+
+@media only screen and (max-width: 767px) and (orientation: landscape),
+only screen and (max-width: 576px) {
+    .s-work .s__canvas {
+        transform: none
+    }
+}
+
+/* REDUCED：退化为纵向卡片列表 */
+.s-work.is-reduced {
+    height: auto
+}
+
+.s-work.is-reduced .s__outer {
+    height: auto;
+    clip-path: none
+}
+
+.s-work.is-reduced .s__inner {
+    position: relative;
+    height: auto;
+    transform: none;
+    padding: 6rem 0
+}
+
+.s-work.is-reduced .s__scene {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem
+}
+
+.s-work.is-reduced .s__scene .s__scene__work {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: min(84vw, 640px)
+}
+
+.s-work.is-reduced .s__scene .s__scene__letter,
+.s-work.is-reduced .s__mask-outer,
+.s-work.is-reduced .s__canvas,
+.s-work.is-reduced .s__ruler,
+.s-work.is-reduced .s__title {
+    display: none
+}
