@@ -77,7 +77,7 @@ only screen and (max-width: 576px) {
   clip-path: circle(0 at 50% 50%);
   overflow: hidden;
   color: var(--color-primary);
-  font: 700 calc(var(--size) * 0.3743) / 1 var(--font-family-bigger);
+  font: 800 calc(var(--size) * 0.3743) / 1 var(--font-family-bigger);
   /* 字符滑窗用度量覆盖版字体（墨迹位置与源站一致）；GO 按钮不适用 */
   font-family: var(--font-display-cta);
   text-align: center;
