@@ -7,6 +7,19 @@
   font-style: normal;
   font-display: swap;
 }
+/* CTA 专用别名：同字体文件 + 度量覆盖，使墨迹在行盒内位置与源站 Bigger Display
+   一致（墨迹顶距盒顶 11.1px）。基线上移 127.5/1000em（asc/desc 等量交换，
+   行盒总高不变 → 布局零偏移，仅字形绘制位置上移 35.2px@276px）。 */
+@font-face {
+  font-family: 'Big Shoulders CTA';
+  src: url('/fonts/big-shoulders-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 85.65%;
+  descent-override: 34.05%;
+  line-gap-override: 0%;
+}
 @font-face {
   font-family: 'Instrument';
   src: url('/fonts/instrument-400.woff2') format('woff2');
@@ -28,6 +41,7 @@
   --color-shadow: #540000;
   --color-white: #fff0eb;
   --font-display: 'Big Shoulders Display', sans-serif;
+  --font-display-cta: 'Big Shoulders CTA', sans-serif;
   --font-body: 'Instrument', serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-family-fraktion: var(--font-mono);

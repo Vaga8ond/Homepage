@@ -111,7 +111,7 @@ export class Cta {
     this.cta.style.setProperty('--size', `${this.ctaMaxSize}px`);
   }
 
-  /** 网格节点：13 列 × N 行，径向向量 dx/dy（爆炸方向基数），中心 = container 中点 */
+  /** 网格节点：12 列 × N 行（+边界各 1 条 = 13 条竖线），径向向量 dx/dy（爆炸方向基数），中心 = container 中点 */
   private setGrid() {
     const { grid } = this;
     const w = this.grid.bounding.width;
@@ -121,7 +121,7 @@ export class Cta {
     grid.svg.style.width = `${w}px`;
     grid.svg.style.height = `${h}px`;
     grid.points = [];
-    grid.vLines = window.innerWidth > 767 ? 12 : 8;
+    grid.vLines = window.safeWidth > 767 ? 12 : 8;
     grid.gapX = w / grid.vLines;
     grid.gapY = this.bounding.height / 8;
     grid.hLines = Math.floor(h / grid.gapY);
@@ -133,7 +133,7 @@ export class Cta {
         const p: GridPoint = {
           x: grid.gapX * n,
           y: grid.gapY * a + (a !== 0 ? rest : 0),
-          ax: 0, ay: 0, vx: 0, vy: 0, wx: 0, wy: 0, mx: 0, my: 0, ox: 0, oy: 0,
+          vx: 0, vy: 0, wx: 0, wy: 0, mx: 0, my: 0, ox: 0, oy: 0,
           dx: 0, dy: 0, dist: 0,
         };
         const hx = p.x - center.x;
@@ -163,7 +163,7 @@ export class Cta {
 
   private movePoints() {
     const { grid, wave } = this;
-    const diag = Math.hypot(window.innerHeight, window.innerWidth);
+    const diag = Math.hypot(window.safeHeight, window.safeWidth);
     grid.points.forEach((col) => {
       col.forEach((p, i) => {
         if (i === 0 || p.dist === 0) return;
@@ -228,8 +228,8 @@ export class Cta {
     const { wave } = this;
     wave.progress = 0;
     wave.state = 'pulse';
-    wave.speed = window.innerWidth > 767 ? 15 : 10;
-    wave.strength = window.innerWidth > 767 ? 1 : 0.35;
+    wave.speed = window.safeWidth > 767 ? 15 : 10;
+    wave.strength = window.safeWidth > 767 ? 1 : 0.35;
   }
 
   private waveShock() {

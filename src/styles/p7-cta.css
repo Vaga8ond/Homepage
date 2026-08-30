@@ -78,6 +78,8 @@ only screen and (max-width: 576px) {
   overflow: hidden;
   color: var(--color-primary);
   font: 700 calc(var(--size) * 0.3743) / 1 var(--font-family-bigger);
+  /* 字符滑窗用度量覆盖版字体（墨迹位置与源站一致）；GO 按钮不适用 */
+  font-family: var(--font-display-cta);
   text-align: center;
   text-transform: uppercase;
   transition: clip-path 0.6s cubic-bezier(0.86, 0, 0.07, 1);
@@ -118,6 +120,7 @@ only screen and (max-width: 576px) {
   text-decoration: none;
   text-transform: uppercase;
   transition: transform 0s linear 0.3s, opacity 0s linear 0.3s;
+  will-change: transform, opacity;
 }
 @media only screen and (max-width: 767px) and (orientation: landscape),
 only screen and (max-width: 576px) {
