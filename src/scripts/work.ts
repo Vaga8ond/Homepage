@@ -181,8 +181,9 @@ export class Work {
       letter.top = rect.top - this.bounding.top;
       letter.left = rect.left;
       letter.freq = 1 + Math.random();
-      const density = window.safeWidth > 767 ? .75 : .3; // 源站同值：Big Shoulders 窄字宽下列数与源站一致
-      letter.total = Math.round(this.bounding.width / letter.width * density) + 2;
+      const density = window.safeWidth > 767 ? .75 : .5;
+      // ponytail: 源站公式用其字体字宽（W 盒≈20.8px），Big Shoulders 字宽大 ~10%，乘 1.1 补偿使 ghost 总数与源站一致
+      letter.total = Math.round(this.bounding.width / letter.width * density * 1.1) + 2;
       for (let i = 0; i < letter.total; i++) {
         const span = document.createElement('span');
         span.className = 's__scene__letter';
