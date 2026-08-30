@@ -1,10 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const workSlots = [
-  'f853d19b', '843928c0', '2ba3dcb6', 'c4f79a35', '0ec5e0ac',
-  'b0dc0e46', '6f8c8fd4', '29c2cf12', '77bea49a', 'e9fb74ba',
-].map((id, i) => ({ id, title: `Project ${String(i + 1).padStart(2, '0')}` }));
+// 34 张占位卡（源站线上卡数；真实项目到位后替换）；确定性伪 hash 保证 SSG 稳定
+const workSlots = Array.from({ length: 34 }, (_, i) => ({
+  id: ((i * 2654435761) % 0xffffffff).toString(16).padStart(8, '0'),
+  title: `Project ${String(i + 1).padStart(2, '0')}`,
+}));
 
 const frames = [
   { title: 'Generative art poster concept', w: 1024, h: 1024 },

@@ -33,9 +33,11 @@ customElements.define('a-work', AWork);
 type Ghost = { el: HTMLSpanElement; x: number; y: number; z: number; i: number; p: number; ap: number; mx: number; my: number };
 
 /* s-work：fixed 画板 + 胶囊遮罩展开 + 卡片流 + WORK 幽灵字母 + 点阵画布。
-   源站机制（source.js 5349–5721）；gsap ScrollTrigger 时间轴换算为手写滚动分段驱动
-  （对应原 tl：intro 0–0.75 + 卡片 dur .5 stagger .25 + 尾部 -=1 回退，总长 3.5）。 */
-const D = 3.5;
+   源站机制（source.js 5349–5721）；gsap ScrollTrigger 时间轴换算为手写滚动分段驱动。
+   源站 tl：intro t0 五路（mask/scale/clip/state dur .75 + points dur 1）+
+   卡片 fromTo 1→-1 dur .5 stagger .25 @.75 + ap 0→1e4 dur=卡末 power1.out +
+   outro "-=1"（即 t=.25n）四路 dur .75（state/mask/scale/clip）+ points dur 1；
+   全部参数按卡数 n 派生：outroStart=.25n、总长 D=.25n+1（n=34 → D=9.5）。 */
 const CARD_START = (i: number) => .75 + i * .25;
 const CARD_DUR = .5;
 const clamp01 = (k: number) => Math.min(1, Math.max(0, k));
@@ -214,31 +216,35 @@ export class Work {
     });
   }
 
-  // 滚动分段驱动（等价老 gsap tl，见文件头注释）
+  // 滚动分段驱动（等价源站 gsap tl，见文件头注释；全部按卡数 n 派生）
   private applyTimeline() {
+    const n = this.works.length;
+    const outroStart = n * .25;
+    const D = outroStart + 1;
     const t = this.tlP * D;
-    // intro [0,.75]：遮罩展开 + 画板放大 + state 点亮
-    const kMask = easeIn4(seg(t, 0, .75));
-    this.mask.el.style.transform = `scale(${1 + (this.mask.maxScale - 1) * kMask})`;
-    this.scene.style.transform = `scale(${.75 + .25 * easeIn3(seg(t, 0, .75))})`;
-    const kState = easeIn4(seg(t, 0, .75));
-    this.scene.style.setProperty('--state', String(kState));
-    this.pointsProgress = easeInOut4(seg(t, 0, .75));
-    // 卡片 [.75, 4]：progress 1→-1 stagger
+    // intro [0,.75]：遮罩展开 + 画板放大 + 裁剪打开 + state 点亮；points dur 1
+    const k4 = easeIn4(seg(t, 0, .75));
+    const k3 = easeIn3(seg(t, 0, .75));
+    this.mask.el.style.transform = `scale(${1 + (this.mask.maxScale - 1) * k4})`;
+    this.scene.style.transform = `scale(${.75 + .25 * k3})`;
+    this.container.style.clipPath = `inset(0 ${(1 - k3).toFixed(4)}rem)`;
+    this.scene.style.setProperty('--state', String(k4));
+    this.pointsProgress = easeInOut4(seg(t, 0, 1));
+    // 卡片：progress 1→-1，dur .5 stagger .25
     this.works.forEach((w, i) => {
       const k = easeSlow(seg(t, CARD_START(i), CARD_START(i) + CARD_DUR));
       w.el.setAttribute('progress', String(1 - 2 * k));
     });
-    // 幽灵流时间 [.75, 4]
-    const ka = seg(t, .75, D);
-    this.animationProgress = 1e4 * (1 - (1 - ka) * (1 - ka));
-    // outro [3,4]：整场退回（后写覆盖 intro 值，同 gsap immediateRender:false）
-    if (t > D - 1) {
-      const ko = clamp01(t - (D - 1));
+    // 幽灵流：卡窗 [.75, 卡末]，power1.out 线性
+    this.animationProgress = 1e4 * seg(t, .75, CARD_START(n - 1) + CARD_DUR);
+    // outro [n*.25, +.75]：四路 dur .75 + points dur 1（后写覆盖 intro 值，同 immediateRender:false）
+    if (t > outroStart) {
+      const ko = seg(t, outroStart, outroStart + .75);
       this.mask.el.style.transform = `scale(${this.mask.maxScale + (1 - this.mask.maxScale) * easeInOut4(ko)})`;
       this.scene.style.transform = `scale(${1 - .25 * easeInOut3(ko)})`;
-      this.scene.style.setProperty('--state', String(1 - easeIn4(ko)));
-      this.pointsProgress = 1 - easeInOut4(ko);
+      this.container.style.clipPath = `inset(0 ${ko.toFixed(4)}rem)`;
+      this.scene.style.setProperty('--state', String(1 - easeInOut4(ko)));
+      this.pointsProgress = 1 - easeInOut4(seg(t, outroStart, outroStart + 1));
     }
   }
 
@@ -312,8 +318,8 @@ export class Work {
     this.scrollProgress = -clamp01(r.top / vh) + (1 - clamp01(r.bottom / vh));
     this.smoothScrollProgress += (this.scrollProgress - this.smoothScrollProgress) * .1;
     this.el.style.setProperty('--scroll-progress', String(this.smoothScrollProgress));
-    // 时间轴进度：top 过视口 75% 线 → bottom 过 25% 线（=老 ScrollTrigger start "top 25%" end "bottom 75%"），scrub 平滑
-    const start = vh * .75 - r.top;
+    // 时间轴进度：top 过视口 25% 线 → bottom 过 75% 线（=源站 ScrollTrigger start "top 25%" end "bottom 75%"），scrub 平滑
+    const start = vh * .25 - r.top;
     const end = r.height - vh * .5;
     const target = end > 0 ? clamp01(start / end) : 0;
     this.tlP += (target - this.tlP) * .1;
