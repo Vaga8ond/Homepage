@@ -252,12 +252,12 @@ only screen and (max-width: 576px) {
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1vw;
+    gap: 0;
     width: 100%;
     margin: 0;
     padding: 1.5rem 0;
     cursor: default;
-    font: 400 min(12.45vw, 18.5rem)/.8 var(--font-family-bigger);
+    font: 700 min(14.7vw, 18.5rem)/.8 var(--font-family-bigger);
     letter-spacing: 0;
     text-transform: uppercase
 }
@@ -265,6 +265,12 @@ only screen and (max-width: 576px) {
 /* 词为 flex 容器：塞不下时字符微缩（char overflow:hidden 使 min-width 归零），绝不折行 */
 .s-hero .s__title .word {
     display: inline-flex
+}
+
+@media only screen and (max-width: 1080px) {
+    .s-hero .s__title {
+        font-size: 14vw
+    }
 }
 
 @media only screen and (max-width: 987px) {

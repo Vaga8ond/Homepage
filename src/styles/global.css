@@ -1,9 +1,9 @@
 /* P1 地基 — 令牌/字体/重置/墨框体系 全部取自 docs/reverse/source.css，值逐条对齐 */
 
 @font-face {
-  font-family: 'Anton';
-  src: url('/fonts/anton-400.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'Big Shoulders Display';
+  src: url('/fonts/big-shoulders-700.woff2') format('woff2');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -27,7 +27,7 @@
   --color-secondary: #160000;
   --color-shadow: #540000;
   --color-white: #fff0eb;
-  --font-display: 'Anton', sans-serif;
+  --font-display: 'Big Shoulders Display', sans-serif;
   --font-body: 'Instrument', serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-family-fraktion: var(--font-mono);

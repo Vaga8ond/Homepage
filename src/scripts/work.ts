@@ -181,7 +181,7 @@ export class Work {
       letter.top = rect.top - this.bounding.top;
       letter.left = rect.left;
       letter.freq = 1 + Math.random();
-      const density = window.safeWidth > 767 ? .42 : .3; // 源站 .75：按 Anton 窄字宽重校准（目标每列 ≈7 ghost，同源站 Bigger Display 密度）
+      const density = window.safeWidth > 767 ? .75 : .3; // 源站同值：Big Shoulders 窄字宽下列数与源站一致
       letter.total = Math.round(this.bounding.width / letter.width * density) + 2;
       for (let i = 0; i < letter.total; i++) {
         const span = document.createElement('span');
